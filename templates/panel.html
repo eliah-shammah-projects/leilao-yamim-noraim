@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Painel — Leilão de Aliyot{% endblock %}
+
+{% block body %}
+  <header class="panel-bar">
+    <div class="panel-bar-inner">
+      <div>
+        <p class="panel-kicker">Kehilat Or Israel</p>
+        <h1 class="panel-title">Painel do leilão</h1>
+      </div>
+      <div class="panel-bar-right">
+        <span class="panel-role">
+          {% if panel_role == ROLE_ADMIN %}Administrador{% else %}Consulta{% endif %}
+        </span>
+        {% if panel_role == ROLE_ADMIN %}
+          <a class="panel-link" href="#configuracoes">Configurações</a>
+        {% endif %}
+        <a class="panel-link" href="{{ url_for('index') }}">Ver o site</a>
+        <form method="post" action="{{ url_for('panel_logout') }}">
+          <button type="submit" class="panel-link panel-link-button">Sair</button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <main class="panel-wrap">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flashes">
+          {% for category, message in messages %}
+            <p class="flash {% if category == 'error' %}flash-error{% endif %}">
+              <span>{{ message }}</span>
+              <button type="button" class="flash-close" aria-label="Fechar">&times;</button>
+            </p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% if not occasion %}
+      <p class="empty-note">Nenhuma ocasião cadastrada.</p>
+    {% else %}
+      <nav class="panel-tabs" aria-label="Ocasiões">
+        {% for item in occasions %}
+          <a class="panel-tab {% if item.id == occasion.id %}is-active{% endif %}"
+             href="{{ url_for('panel', ocasiao=item.slug) }}">
+            {{ item.name }}
+            <span class="panel-tab-state">{{ item.status }}</span>
+          </a>
+        {% endfor %}
+      </nav>
+
+      <section class="panel-summary">
+        <div class="stat">
+          <span class="stat-value">{{ total | nis }}</span>
+          <span class="stat-label">Total dos lances vencedores</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">{{ with_bids }} / {{ rows | length }}</span>
+          <span class="stat-label">Aliyot com lance</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">{{ "Aberto" if is_open else "Fechado" }}</span>
+          <span class="stat-label">
+            {% if occasion.closing_datetime %}
+              Encerra {{ occasion.closing_datetime | israel }}
+            {% else %}
+              Sem data de encerramento
+            {% endif %}
+          </span>
+        </div>
+      </section>
+
+      <p class="panel-hint">
+        Todos os horários nesta página são horário de Israel.
+        {% if panel_role == ROLE_ADMIN %}
+          Para anular um lance, abra o histórico da aliyah. As datas e o estado
+          da ocasião ficam em <a href="#configuracoes">configurações</a>, no fim
+          desta página.
+        {% endif %}
+      </p>
+
+      <div class="table-scroll">
+        <table class="panel-table">
+          <thead>
+            <tr>
+              <th>Aliyah</th>
+              <th class="num">Valor</th>
+              <th>Quem está ganhando</th>
+              <th>E-mail</th>
+              <th>Telefone</th>
+              <th class="num">Lances</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for aliyah, bid, count in rows %}
+              <tr>
+                <td>
+                  <span class="cell-name">{{ aliyah.name }}</span>
+                  {% if aliyah.subtitle %}
+                    <span class="cell-sub">{{ aliyah.subtitle }}</span>
+                  {% endif %}
+                  <span class="cell-sub">{{ aliyah.moment_group }}</span>
+                </td>
+                {% if bid %}
+                  <td class="num cell-amount">{{ bid.amount | nis }}</td>
+                  <td>{{ bid.full_name }}</td>
+                  <td><a href="mailto:{{ bid.email }}">{{ bid.email }}</a></td>
+                  <td><a href="tel:{{ bid.phone }}">{{ bid.phone }}</a></td>
+                {% else %}
+                  <td class="num cell-empty">
+                    {% if aliyah.min_bid %}{{ aliyah.min_bid | nis }}{% else %}-{% endif %}
+                  </td>
+                  <td class="cell-empty" colspan="3">Sem lances</td>
+                {% endif %}
+                <td class="num">{{ count }}</td>
+                <td class="num">
+                  <a class="panel-link" href="{{ url_for('panel_aliyah', aliyah_id=aliyah.id) }}">
+                    {% if count and panel_role == ROLE_ADMIN %}
+                      Histórico e anular
+                    {% else %}
+                      Histórico
+                    {% endif %}
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if panel_role == ROLE_ADMIN %}
+        <section class="panel-settings" id="configuracoes">
+          <h2 class="panel-h2">Configurações de {{ occasion.name }}</h2>
+
+          <form class="settings-form" method="post"
+                action="{{ url_for('panel_save_occasion', occasion_id=occasion.id) }}">
+            <label class="field">
+              <span class="field-label">Abertura (horário de Israel)</span>
+              <input type="datetime-local" name="abertura"
+                     value="{{ occasion.opening_datetime | israel_input }}">
+            </label>
+
+            <label class="field">
+              <span class="field-label">Encerramento (horário de Israel)</span>
+              <input type="datetime-local" name="encerramento"
+                     value="{{ occasion.closing_datetime | israel_input }}">
+            </label>
+
+            <button type="submit" class="btn-confirm">Salvar datas</button>
+            <p class="settings-note">
+              Deixar a abertura em branco significa aberto desde já.
+            </p>
+          </form>
+
+          <form class="settings-form" method="post"
+                action="{{ url_for('panel_save_occasion', occasion_id=occasion.id) }}">
+            <input type="hidden" name="acao" value="estado">
+            <label class="field">
+              <span class="field-label">Estado</span>
+              <select name="status">
+                <option value="open" {% if occasion.status == 'open' %}selected{% endif %}>
+                  Aberto (aceita lances dentro das datas)
+                </option>
+                <option value="locked" {% if occasion.status == 'locked' %}selected{% endif %}>
+                  Bloqueado (aba visível, sem lances)
+                </option>
+                <option value="closed" {% if occasion.status == 'closed' %}selected{% endif %}>
+                  Encerrado (mostra os valores finais)
+                </option>
+              </select>
+            </label>
+            <button type="submit" class="btn-confirm btn-quiet">Salvar estado</button>
+            <p class="settings-note">
+              É aqui que o Yom Kipur é destravado, mudando de bloqueado para aberto.
+            </p>
+          </form>
+        </section>
+      {% endif %}
+    {% endif %}
+  </main>
+{% endblock %}

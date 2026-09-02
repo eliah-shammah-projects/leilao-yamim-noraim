@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}{{ aliyah.name }} — Painel{% endblock %}
+
+{% block body %}
+  <header class="panel-bar">
+    <div class="panel-bar-inner">
+      <div>
+        <p class="panel-kicker">{{ occasion.name }} · {{ aliyah.moment_group }}</p>
+        <h1 class="panel-title">{{ aliyah.label }}</h1>
+      </div>
+      <div class="panel-bar-right">
+        <a class="panel-link" href="{{ url_for('panel', ocasiao=occasion.slug) }}">
+          Voltar ao painel
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="panel-wrap">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flashes">
+          {% for category, message in messages %}
+            <p class="flash {% if category == 'error' %}flash-error{% endif %}">
+              <span>{{ message }}</span>
+              <button type="button" class="flash-close" aria-label="Fechar">&times;</button>
+            </p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <p class="panel-hint">
+      Histórico completo, do maior para o menor. Todos os horários são horário de
+      Israel. Um lance anulado continua listado e deixa de contar.
+    </p>
+
+    {% if not bids %}
+      <p class="empty-note">
+        Nenhum lance nesta aliyah ainda. Quando houver, cada um aparece aqui
+        {% if panel_role == ROLE_ADMIN %}com o botão de anular ao lado{% else %}
+        com nome, e-mail e telefone{% endif %}.
+      </p>
+    {% else %}
+      <div class="table-scroll">
+        <table class="panel-table">
+          <thead>
+            <tr>
+              <th class="num">Valor</th>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Telefone</th>
+              <th>Recebido</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for bid in bids %}
+              <tr class="{% if bid.is_cancelled %}row-cancelled{% endif %}">
+                <td class="num cell-amount">{{ bid.amount | nis }}</td>
+                <td>{{ bid.full_name }}</td>
+                <td><a href="mailto:{{ bid.email }}">{{ bid.email }}</a></td>
+                <td><a href="tel:{{ bid.phone }}">{{ bid.phone }}</a></td>
+                <td>{{ bid.created_at | israel }}</td>
+                <td class="num">
+                  {% if bid.is_cancelled %}
+                    <span class="tag-cancelled">
+                      Anulado {{ bid.cancelled_at | israel }}
+                    </span>
+                  {% elif panel_role == ROLE_ADMIN %}
+                    <form method="post"
+                          action="{{ url_for('panel_cancel_bid', bid_id=bid.id) }}"
+                          onsubmit="return confirm('Anular o lance de {{ bid.full_name }}? Ele deixa de contar, mas continua no histórico.');">
+                      <button type="submit" class="panel-link panel-link-button panel-link-danger">
+                        Anular
+                      </button>
+                    </form>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  </main>
+{% endblock %}

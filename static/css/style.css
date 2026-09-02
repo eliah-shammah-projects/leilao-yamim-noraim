@@ -1,0 +1,1577 @@
+/* Leilao de Aliyot - Yamim Noraim
+   Warm bronze and gold. The background is bronze, not black, so the whole
+   screen reads gold without ever turning into a light page. */
+
+:root {
+  /* Warm bronze scale. No blue anywhere: every neutral leans to amber. */
+  --bg: #17110a;
+  --bg-soft: #1d1610;
+  --surface: #241c13;
+  --surface-lift: #2e2418;
+  --surface-high: #3a2d1d;
+
+  --gold: #d4af55;
+  --gold-bright: #eccd82;
+  --gold-deep: #a8842c;
+
+  --cream: #f4ecdc;
+  --dim: #b5a488;
+  --faint: #8a7a5f;
+
+  --wrap: 1180px;
+
+  /* Deep navy, used lightly and only in a few places, to keep the page from
+     being wall to wall bronze. Never as a gradient into the bronze: the two
+     mixed together go purple. */
+  --blue: #16233d;
+  --blue-soft: #1e3055;
+  --blue-line: rgba(120, 158, 214, 0.2);
+  --blue-rule: #3d5f96;
+  --blue-mark: #4f7cb8;
+
+  --line: rgba(212, 175, 85, 0.16);
+  --line-strong: rgba(212, 175, 85, 0.34);
+
+  --font: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+
+  /* One easing curve for the whole site. Nothing moves linearly. */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  --radius: 20px;
+  --radius-lg: 26px;
+
+  --shadow: 0 18px 40px -22px rgba(0, 0, 0, 0.9);
+  --shadow-lift: 0 28px 60px -26px rgba(0, 0, 0, 0.95);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--cream);
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+/* ---------- Header ---------- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 20px 28px;
+  background: rgba(23, 17, 10, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+/* The supplied logo is a square lockup: the star and scroll on top, the
+   community name written underneath. The name is already set in clean type
+   beside it, and at this size the built-in wordmark would only be a smudge,
+   so the bottom fifth of the file is cropped away and only the mark is shown. */
+/* No plate, no border: the mark sits straight on the background. The white
+   background baked into the supplied file was stripped out of logo_blue.png
+   itself, so this only works while that file stays transparent. */
+.brand-mark {
+  display: block;
+  flex: none;
+}
+
+/* The supplied logo is a square lockup with the community name written under
+   the mark. The name is already set in clean type beside it, so the bottom
+   fifth of the file is cropped away here. */
+.brand-mark-clip {
+  display: block;
+  width: 56px;
+  height: 45px;
+  overflow: hidden;
+}
+
+.brand-mark-clip img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.brand-mark-fallback {
+  padding: 0;
+  background: none;
+  width: 44px;
+  height: 44px;
+}
+
+.brand-name {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* ---------- Magen David, stands in wherever a real image is missing ------- */
+
+/* Blue, never gold. A lone gold Star of David on a dark ground reads as the
+   Judenstern. This applies to the drawn fallback exactly as it applies to the
+   logo file. */
+.magen {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--blue-mark);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  opacity: 0.85;
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  position: relative;
+  min-height: 72vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  text-align: center;
+  padding: 76px 28px 84px;
+}
+
+.hero-media {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center center;
+  transform-origin: center center;
+  animation: kenburns 28s ease-in-out infinite alternate;
+}
+
+/* Slow enough that the page never reads as moving, only never as frozen. */
+@keyframes kenburns {
+  from { transform: scale(1); }
+  to   { transform: scale(1.08); }
+}
+
+/* Warm veil, not a black one: the photo is pulled toward bronze. */
+.hero-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(80% 60% at 50% 42%, rgba(212, 175, 85, 0.16) 0%, transparent 68%),
+    linear-gradient(to bottom,
+      rgba(23, 17, 10, 0.7) 0%,
+      rgba(23, 17, 10, 0.76) 52%,
+      rgba(23, 17, 10, 0.99) 100%);
+}
+
+.hero-plain .hero-veil {
+  background:
+    radial-gradient(70% 55% at 50% 34%, rgba(212, 175, 85, 0.22) 0%, transparent 70%),
+    radial-gradient(120% 100% at 50% 0%, #2b2114 0%, var(--bg) 68%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 760px;
+}
+
+/* Loose on the hero, no pill around it. The border and the tinted plate were
+   removed on Eliahu's ask: boxed up there it read as a badge stuck on the
+   photograph rather than as the name of the season. */
+.hero-kicker {
+  display: inline-block;
+  margin: 0 0 22px;
+  font-size: clamp(0.82rem, 1.9vw, 1rem);
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.hero-title {
+  margin: 0;
+  font-size: clamp(2.6rem, 8vw, 5rem);
+  font-weight: 200;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 62%, var(--gold-deep) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Which of the two occasions this is. It used to be a small grey line tucked
+   under the title, easy to miss, and it is the one fact that changes when the
+   visitor switches tab. Now it is gold, several times the size, and it sits low
+   enough to read as the heading of the countdown below it rather than as a
+   footnote to the title above. */
+.hero-occasion {
+  margin: 40px 0 0;
+  font-size: clamp(1.15rem, 3.2vw, 1.7rem);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold-bright);
+}
+
+/* ---------- Countdown ---------- */
+
+.countdown {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  /* Close to the occasion name above, which now belongs with it. */
+  margin-top: 20px;
+}
+
+.cd-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 86px;
+  padding: 18px 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(46, 36, 24, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.cd-value {
+  font-size: clamp(1.9rem, 5.5vw, 2.6rem);
+  font-weight: 300;
+  line-height: 1;
+  color: var(--gold-bright);
+  font-variant-numeric: tabular-nums;
+}
+
+.cd-label {
+  margin-top: 9px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.countdown-note {
+  margin: 24px 0 0;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* ---------- Flashes ---------- */
+
+.flashes {
+  margin: 36px 0 0;
+}
+
+.flash {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin: 0 0 12px;
+  padding: 15px 16px 15px 22px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--gold);
+  font-size: 15px;
+  box-shadow: var(--shadow);
+  transition: opacity 0.5s var(--ease);
+}
+
+.flash span {
+  flex: 1;
+}
+
+.flash.is-going {
+  opacity: 0;
+}
+
+.flash-error {
+  border-left-color: #cc6a45;
+}
+
+.flash-close {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--faint);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.35s var(--ease), background-color 0.35s var(--ease);
+}
+
+.flash-close:hover {
+  color: var(--cream);
+  background: rgba(212, 175, 85, 0.14);
+}
+
+/* A rejected bid is explained inside the dialog, right above the fields. */
+.modal-error {
+  margin: 0 0 20px;
+  padding: 13px 16px;
+  border-radius: 13px;
+  background: rgba(204, 106, 69, 0.12);
+  border: 1px solid rgba(204, 106, 69, 0.4);
+  text-align: left;
+}
+
+.modal-error p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #f0c3ad;
+}
+
+/* ---------- Tabs, as a segmented control ---------- */
+
+/* Two loose pills, no capsule around them. The outer border and the surface
+   behind it were removed on Eliahu's ask: he did not want the two occasions
+   boxed together. The active one is still filled with gold. */
+.tabs {
+  display: inline-flex;
+  gap: 10px;
+  margin: 54px 0 0;
+}
+
+.tabs-row {
+  display: flex;
+  justify-content: center;
+}
+
+.tab {
+  padding: 11px 28px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.4s var(--ease), background-color 0.4s var(--ease);
+}
+
+.tab:hover {
+  color: var(--cream);
+}
+
+.tab.is-active {
+  color: #1c1409;
+  background: linear-gradient(160deg, var(--gold-bright), var(--gold));
+  font-weight: 600;
+}
+
+.tab.is-locked::after {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-left: 9px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.55;
+  vertical-align: middle;
+}
+
+.status-line {
+  text-align: center;
+  color: var(--dim);
+  font-size: 15px;
+  margin: 30px 0 0;
+}
+
+/* ---------- Locked and empty panel ---------- */
+
+.panel-locked {
+  max-width: 480px;
+  margin: 72px auto 110px;
+  padding: 60px 36px;
+  text-align: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.panel-locked .magen {
+  width: 50px;
+  height: 50px;
+  opacity: 0.6;
+}
+
+.panel-locked-title {
+  margin: 24px 0 10px;
+  font-size: 22px;
+  font-weight: 300;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.panel-locked-text {
+  margin: 0;
+  color: var(--dim);
+  font-size: 15px;
+}
+
+/* ---------- Intro ---------- */
+
+/* What the site is, in two lines, before anyone scrolls. The second line is
+   the one that matters: no money changes hands here. */
+.intro {
+  max-width: 690px;
+  margin: 56px auto 0;
+  padding: 0 28px;
+  text-align: center;
+}
+
+.intro-title {
+  margin: 0;
+  font-size: clamp(1.5rem, 3.6vw, 2.1rem);
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 75%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.intro-text {
+  margin: 14px 0 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--dim);
+}
+
+/* ---------- Moments ---------- */
+
+.moment {
+  margin: 72px 0 0;
+}
+
+/* The break between Arvit and Shacharit is a real division of the evening,
+   not a subtitle. It has to be impossible to scroll past without noticing. */
+.moment-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0 0 30px;
+  padding: 22px 0 18px;
+  /* Blue divides, gold means money. Keeping the two jobs apart is what stops
+     the page being one undifferentiated bronze field. */
+  border-top: 2px solid var(--blue-rule);
+  border-bottom: 1px solid var(--blue-line);
+}
+
+.moment-heading {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+}
+
+.moment-title {
+  margin: 0;
+  font-size: clamp(2.1rem, 5vw, 3.1rem);
+  font-weight: 200;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 70%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.moment-caption {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--dim);
+}
+
+.moment-count {
+  flex: none;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--faint);
+  white-space: nowrap;
+}
+
+/* ---------- Cards ---------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(196px, 1fr));
+  gap: 16px;
+}
+
+/* One moment holds several tiers: the opening, the aliyot, hagbaa and glila.
+   The break between them is space and nothing else. Drawing a rule here would
+   cost the rule above its meaning, which is the division of night from morning. */
+.grid + .grid {
+  margin-top: 34px;
+}
+
+.card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow);
+  transition: transform 0.5s var(--ease),
+              border-color 0.5s var(--ease),
+              background-color 0.5s var(--ease),
+              box-shadow 0.5s var(--ease);
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  border-color: var(--line-strong);
+  background: var(--surface-lift);
+  box-shadow: var(--shadow-lift);
+}
+
+.card-media {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background:
+    radial-gradient(90% 80% at 50% 40%, rgba(120, 158, 214, 0.12) 0%, transparent 70%),
+    var(--blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-media img {
+  /* Per photo framing. --zoom crops in on the subject; the hover zoom
+     multiplies it instead of replacing it. */
+  --zoom: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+  transform: scale(var(--zoom));
+  transition: transform 0.8s var(--ease);
+}
+
+.card:hover .card-media img {
+  transform: scale(calc(var(--zoom) * 1.06));
+}
+
+/* The yad sits in the left third and must never be cropped away. */
+.media-aliyah img {
+  object-position: 32% center;
+}
+
+/* The Aron fills the card. The walls of the room on either side of it are
+   cropped away entirely: at this zoom the frame holds nothing but the gold
+   carving and the sifrei Torah. The inscription over the arch and the step
+   below are the price of that, and are cut. */
+.media-pticha img {
+  --zoom: 1.6;
+  object-position: 50% center;
+}
+
+/* The sefer is tall and narrow in a wide frame. Crop in on the mantle, the
+   crown and the lions rather than showing a small scroll lost in the middle. */
+.media-glila img {
+  --zoom: 2.0;
+  object-position: 50% center;
+}
+
+.card-placeholder {
+  width: 42px;
+  height: 42px;
+  opacity: 0.62;
+}
+
+.card-body {
+  padding: 15px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  flex: 1;
+}
+
+/* The name of the honour, which is what the visitor is looking for on the
+   card. It was 14px, weight 500, in cream: legible, but it read as a caption
+   under a photograph rather than as the title of the thing being offered. Gold
+   headings are the design direction, and older eyes on a phone want the size. */
+.card-name {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0;
+  color: var(--gold-bright);
+}
+
+/* Lies over the whole card so any part of it opens the enlarged version.
+   Invisible: the card is the button. */
+.card-zoom {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+.card-zoom:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 16px;
+}
+
+/* The Portuguese reading under a Hebrew title. It explains the name, it does
+   not compete with it. */
+.card-subtitle {
+  margin: 2px 0 0;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: var(--dim);
+}
+
+.amount {
+  margin: 3px 0 12px;
+  font-size: 23px;
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--gold-bright);
+  font-variant-numeric: tabular-nums;
+}
+
+/* A minimum is not a bid, so it never gets the bright gold. */
+.amount-min {
+  color: var(--faint);
+  font-size: 20px;
+}
+
+/* Labelled, because a bare 400 sitting where a bid goes reads as the price of
+   the aliyah. This reverses the decision of 2026-09-01 that the minimum should
+   be told apart by styling alone: Eliahu watched it and said the numbers were
+   being taken for prices. */
+.amount-from {
+  display: block;
+  margin-bottom: 1px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* An amount somebody actually offered. Filled with gold, the number reversed
+   out in the dark bronze of the page, and beating. Money already on the table
+   is the loudest thing on the card, and it has to be impossible to confuse
+   with an aliyah that is still showing its opening price. */
+.amount-live {
+  padding: 4px 15px;
+  border: 1px solid var(--gold-bright);
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 100%);
+  color: var(--bg);
+  font-weight: 600;
+  animation: bid-pulse 1.7s var(--ease) infinite;
+}
+
+@keyframes bid-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(236, 205, 130, 0.55);
+  }
+  55% {
+    transform: scale(1.07);
+    box-shadow: 0 0 0 13px rgba(236, 205, 130, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(236, 205, 130, 0);
+  }
+}
+
+/* Above the cover that opens the enlarged card, so it keeps its own job. */
+.btn-bid {
+  position: relative;
+  z-index: 2;
+  margin-top: auto;
+  width: 100%;
+  padding: 9px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--gold);
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.45s var(--ease),
+              color 0.45s var(--ease),
+              border-color 0.45s var(--ease);
+}
+
+.btn-bid:hover {
+  background: linear-gradient(160deg, var(--gold-bright), var(--gold));
+  border-color: var(--gold);
+  color: #1c1409;
+}
+
+/* ---------- Modal ---------- */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* display: flex above beats the browser's own rule for [hidden], so the modal
+   has to be hidden explicitly or it covers the whole page from page load. */
+.modal[hidden] {
+  display: none;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(9, 14, 25, 0.86);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.modal-panel {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 42px 34px 32px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lift);
+  text-align: center;
+  animation: modal-in 0.42s var(--ease);
+}
+
+/* The enlarged card. No panel of its own: the card is the panel, so what
+   comes up is the same object the visitor tapped, only bigger. */
+.card-modal-panel {
+  position: relative;
+  width: 100%;
+  max-width: 390px;
+  max-height: 92vh;
+  overflow-y: auto;
+  animation: modal-in 0.42s var(--ease);
+}
+
+.card-modal-panel .modal-close {
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  background: rgba(23, 17, 10, 0.7);
+  color: var(--cream);
+}
+
+.card-big {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-lift);
+}
+
+/* It is already open and already the size it is going to be. */
+.card-big:hover {
+  transform: none;
+}
+
+.card-big:hover .card-media img {
+  transform: scale(var(--zoom));
+}
+
+.card-big .card-body {
+  padding: 20px 22px 22px;
+  gap: 4px;
+}
+
+.card-big .card-name {
+  font-size: 24px;
+}
+
+.card-big .card-subtitle {
+  font-size: 15px;
+}
+
+.card-big .amount {
+  margin: 8px 0 16px;
+  font-size: 30px;
+}
+
+.card-big .amount-from {
+  font-size: 11px;
+}
+
+.card-big .btn-bid {
+  padding: 13px 16px;
+  font-size: 12px;
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(212, 175, 85, 0.08);
+  color: var(--dim);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.35s var(--ease), background-color 0.35s var(--ease);
+}
+
+.modal-close:hover {
+  color: var(--cream);
+  background: rgba(212, 175, 85, 0.18);
+}
+
+/* The form no longer repeats the amount. A minimum shown over an empty field
+   reads as the number you are meant to type, and the enlarged card already
+   carries the figure. If a bid is too low the server says so by name. */
+.modal-title {
+  margin: 0 0 26px;
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: var(--cream);
+}
+
+.modal-form {
+  text-align: left;
+}
+
+.field {
+  display: block;
+  margin-bottom: 15px;
+}
+
+/* Quiet. The label only has to name the field, not compete with it. Uppercase
+   plus wide tracking made these read much larger than their 11px. */
+.field-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--faint);
+}
+
+.field input {
+  width: 100%;
+  padding: 13px 16px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--bg-soft);
+  color: var(--cream);
+  font-family: var(--font);
+  /* 16px keeps phones from zooming the page when a field is focused. */
+  font-size: 16px;
+  transition: border-color 0.4s var(--ease), background-color 0.4s var(--ease);
+}
+
+.field input::placeholder {
+  color: var(--faint);
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--gold);
+  background: var(--surface-lift);
+}
+
+.btn-confirm {
+  width: 100%;
+  margin-top: 12px;
+  padding: 16px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(160deg, var(--gold-bright), var(--gold));
+  color: #1c1409;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: filter 0.45s var(--ease), transform 0.45s var(--ease);
+}
+
+.btn-confirm:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.modal-note {
+  margin: 18px 0 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--faint);
+}
+
+/* The two things worth knowing before committing to an amount, sitting under
+   the amount field rather than stranded at the foot of the form where nobody
+   reads them until it is too late. */
+.field-amount {
+  margin-bottom: 10px;
+}
+
+.field-notes {
+  margin: 0 0 18px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  background: rgba(212, 175, 85, 0.05);
+  border: 1px solid rgba(212, 175, 85, 0.12);
+  text-align: left;
+}
+
+.field-notes p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--dim);
+}
+
+.field-notes p + p {
+  margin-top: 6px;
+}
+
+/* ---------- Footer ---------- */
+
+.site-footer {
+  margin-top: 120px;
+  padding: 52px 28px 64px;
+  background: var(--blue);
+  border-top: 1px solid var(--blue-line);
+  text-align: center;
+  color: var(--dim);
+}
+
+.site-footer p {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.footer-note {
+  margin-top: 12px;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--faint);
+}
+
+.empty-note {
+  margin: 90px 0;
+  text-align: center;
+  color: var(--dim);
+}
+
+code {
+  color: var(--gold);
+  font-size: 0.92em;
+}
+
+/* ---------- Mobile ---------- */
+
+@media (max-width: 700px) {
+  .wrap {
+    padding: 0 18px;
+  }
+
+  .hero {
+    min-height: 58vh;
+    padding: 52px 20px 56px;
+  }
+
+  .hero-occasion {
+    margin-top: 30px;
+    letter-spacing: 0.16em;
+  }
+
+  .countdown {
+    gap: 8px;
+    margin-top: 18px;
+  }
+
+  .cd-unit {
+    min-width: 0;
+    flex: 1;
+    padding: 14px 4px 11px;
+  }
+
+  .tabs {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .tab {
+    padding: 11px 20px;
+    font-size: 12px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .grid + .grid {
+    margin-top: 26px;
+  }
+
+  .card {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .card-media {
+    flex: 0 0 98px;
+    aspect-ratio: auto;
+  }
+
+  /* The enlarged card is not a list row. It keeps the full photograph on top,
+     which also means it wants the desktop framing back, not the phone one. */
+  .card-big {
+    flex-direction: column;
+  }
+
+  .card-big .card-media {
+    flex: none;
+    aspect-ratio: 3 / 2;
+  }
+
+  .card-big .media-pticha img {
+    --zoom: 1.6;
+  }
+
+  .card-modal-panel {
+    max-width: 340px;
+  }
+
+  /* On a phone the media box is a narrow upright strip, so the browser is
+     already cropping the sides away on its own. The desktop zoom on top of
+     that cropped a second time and threw the Aron out of the picture, leaving
+     nothing but the shelf of sifrei Torah. At 1 the arch, the crown and the
+     inscription are all back, and the walls stay out of frame anyway. Most
+     visitors are on a phone: this is the framing that matters. */
+  .media-pticha img {
+    --zoom: 1;
+  }
+
+  .card-body {
+    padding: 18px 20px;
+    gap: 2px;
+  }
+
+  /* The phone is where most of this is read, and where the row is widest. */
+  .card-name {
+    font-size: 18px;
+  }
+
+  .amount {
+    margin: 3px 0 11px;
+    font-size: 22px;
+  }
+
+  .amount-min {
+    font-size: 20px;
+  }
+
+  .modal-panel {
+    padding: 36px 22px 26px;
+  }
+
+  .moment {
+    margin: 52px 0 0;
+  }
+
+}
+
+/* A visitor who asked for less motion gets a still page. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .hero-media {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---------- Taking back your own bid ---------- */
+
+/* Only ever rendered for a bid this browser placed, inside the window. It has
+   to be reachable, so it sits above the cover that opens the enlarged card,
+   and it has to be quiet, so it is not mistaken for the way to bid. */
+.card-cancel {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  margin: 0 0 8px;
+}
+
+.btn-cancel {
+  width: 100%;
+  padding: 7px 12px;
+  border: 1px solid rgba(212, 175, 85, 0.18);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--faint);
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.4s var(--ease), border-color 0.4s var(--ease);
+}
+
+.btn-cancel:hover {
+  color: var(--cream);
+  border-color: var(--line-strong);
+}
+
+.footer-admin {
+  display: inline-block;
+  margin: 18px 0 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--faint);
+  text-decoration: none;
+  border: 1px solid rgba(212, 175, 85, 0.18);
+  border-radius: 999px;
+  padding: 9px 20px;
+  transition: color 0.4s var(--ease), border-color 0.4s var(--ease);
+}
+
+.footer-admin:hover {
+  color: var(--gold);
+  border-color: var(--line-strong);
+}
+
+/* ---------- Panel ---------- */
+
+/* Deliberately plainer than the public site. This is a working tool that gets
+   read on a phone in a hurry, and read across, so density and legibility beat
+   atmosphere. It keeps the palette and drops the ceremony. */
+
+.panel-gate {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.gate-card {
+  width: 100%;
+  max-width: 380px;
+  padding: 40px 32px 30px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lift);
+  text-align: center;
+}
+
+.gate-kicker {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.gate-title {
+  margin: 10px 0 26px;
+  font-size: 24px;
+  font-weight: 300;
+  color: var(--gold-bright);
+}
+
+.gate-error {
+  margin: 0 0 18px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(180, 70, 60, 0.14);
+  border: 1px solid rgba(214, 120, 105, 0.35);
+  color: #f0c9c2;
+  font-size: 14px;
+}
+
+.gate-note {
+  margin: 18px 0 0;
+  font-size: 13px;
+}
+
+.gate-note a {
+  color: var(--faint);
+}
+
+.panel-bar {
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-soft);
+}
+
+.panel-bar-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+
+.panel-kicker {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.panel-title {
+  margin: 4px 0 0;
+  font-size: 21px;
+  font-weight: 400;
+  color: var(--gold-bright);
+}
+
+.panel-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.panel-role {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #1c1409;
+  background: linear-gradient(160deg, var(--gold-bright), var(--gold));
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+
+.panel-link {
+  font-size: 13px;
+  color: var(--dim);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.35s var(--ease), border-color 0.35s var(--ease);
+}
+
+.panel-link:hover {
+  color: var(--cream);
+  border-color: var(--line-strong);
+}
+
+.panel-link-button {
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: var(--font);
+  cursor: pointer;
+}
+
+.panel-link-danger:hover {
+  color: #f0a99e;
+}
+
+.panel-wrap {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 26px 24px 80px;
+}
+
+.panel-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 24px;
+}
+
+.panel-tab {
+  padding: 10px 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--dim);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.35s var(--ease), border-color 0.35s var(--ease),
+              background-color 0.35s var(--ease);
+}
+
+.panel-tab:hover {
+  color: var(--cream);
+  border-color: var(--line-strong);
+}
+
+.panel-tab.is-active {
+  color: var(--gold-bright);
+  border-color: var(--line-strong);
+  background: var(--surface);
+}
+
+.panel-tab-state {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.panel-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin: 0 0 20px;
+}
+
+.stat {
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.stat-value {
+  display: block;
+  font-size: 26px;
+  font-weight: 300;
+  color: var(--gold-bright);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--dim);
+}
+
+.panel-hint {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--faint);
+}
+
+/* A wide table on a narrow phone scrolls sideways inside its own box. The page
+   itself must never scroll horizontally. */
+.table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.panel-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.panel-table th,
+.panel-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.panel-table thead th {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+  background: var(--bg-soft);
+}
+
+.panel-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.panel-table .num {
+  text-align: right;
+}
+
+.panel-table a {
+  color: var(--dim);
+}
+
+.cell-name {
+  display: block;
+  color: var(--cream);
+  font-weight: 600;
+}
+
+.cell-sub {
+  display: block;
+  font-size: 12px;
+  color: var(--faint);
+}
+
+.cell-amount {
+  color: var(--gold-bright);
+  font-variant-numeric: tabular-nums;
+}
+
+.cell-empty {
+  color: var(--faint);
+}
+
+.row-cancelled td {
+  color: var(--faint);
+  text-decoration: line-through;
+}
+
+.row-cancelled .tag-cancelled {
+  text-decoration: none;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #d79b8f;
+}
+
+.panel-settings {
+  margin: 40px 0 0;
+}
+
+.panel-h2 {
+  margin: 0 0 18px;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--gold);
+}
+
+.settings-form {
+  max-width: 460px;
+  margin: 0 0 28px;
+  padding: 22px 24px 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.settings-form select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--bg-soft);
+  color: var(--cream);
+  font-family: var(--font);
+  font-size: 16px;
+}
+
+.settings-note {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--faint);
+}
+
+.btn-quiet {
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--gold);
+}
+
+@media (max-width: 700px) {
+  .panel-bar-inner,
+  .panel-wrap {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .panel-table th,
+  .panel-table td {
+    padding: 10px 12px;
+  }
+}

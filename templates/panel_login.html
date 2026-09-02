@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Painel — Leilão de Aliyot{% endblock %}
+
+{% block body %}
+  <main class="panel-gate">
+    <form class="gate-card" method="post">
+      <p class="gate-kicker">Kehilat Or Israel</p>
+      <h1 class="gate-title">Painel do leilão</h1>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <p class="gate-error">{{ message }}</p>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <label class="field">
+        <span class="field-label">Senha</span>
+        <input type="password" name="senha" autocomplete="current-password"
+               autofocus required>
+      </label>
+
+      <button type="submit" class="btn-confirm">Entrar</button>
+
+      <p class="gate-note">
+        <a href="{{ url_for('index') }}">Voltar ao site</a>
+      </p>
+    </form>
+  </main>
+{% endblock %}

@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% macro magen_david() -%}
+  <svg class="magen" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+    <polygon points="50,8 88,74 12,74"></polygon>
+    <polygon points="50,92 12,26 88,26"></polygon>
+  </svg>
+{%- endmacro %}
+
+{% block body %}
+  <header class="site-header">
+    <div class="brand">
+      {% if logo_image %}
+        <span class="brand-mark">
+          <span class="brand-mark-clip">
+            <img src="{{ logo_image }}" alt="Kehilat Or Israel">
+          </span>
+        </span>
+      {% else %}
+        <span class="brand-mark brand-mark-fallback">{{ magen_david() }}</span>
+      {% endif %}
+      <span class="brand-name">Kehilat Or Israel</span>
+    </div>
+  </header>
+
+  <section class="hero {% if not hero_image %}hero-plain{% endif %}">
+    {% if hero_image %}
+      <div class="hero-media" style="background-image: url('{{ hero_image }}')"></div>
+    {% endif %}
+    <div class="hero-veil"></div>
+
+    <div class="hero-content">
+      <p class="hero-kicker">Yamim Noraim</p>
+      <h1 class="hero-title">Leilão de Aliyot</h1>
+      {% if occasion %}
+        <p class="hero-occasion">{{ occasion.name }}</p>
+      {% endif %}
+
+      {% if bidding_open and occasion and occasion.closing_datetime %}
+        <div class="countdown"
+             data-closing="{{ occasion.closing_datetime.isoformat() }}Z"
+             data-now="{{ server_now.isoformat() }}Z"
+             aria-live="off">
+          <div class="cd-unit"><span class="cd-value" data-unit="days">--</span><span class="cd-label">dias</span></div>
+          <div class="cd-unit"><span class="cd-value" data-unit="hours">--</span><span class="cd-label">horas</span></div>
+          <div class="cd-unit"><span class="cd-value" data-unit="minutes">--</span><span class="cd-label">min</span></div>
+          <div class="cd-unit"><span class="cd-value" data-unit="seconds">--</span><span class="cd-label">seg</span></div>
+        </div>
+        <p class="countdown-note">Para o leilão fechar</p>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="intro">
+    <h2 class="intro-title">Dê o seu lance e aumente seus Zechuyot</h2>
+    <p class="intro-text">
+      Aqui você registra apenas o seu lance, o site não recebe pagamento.
+      O vencedor será contatado pela Kehila para acertar o pagamento.
+    </p>
+  </section>
+
+  <main class="wrap">
+    {% set stray = errors if not bidding_open else [] %}
+    {% if notices or stray %}
+      <div class="flashes">
+        {% for message in notices %}
+          <p class="flash">
+            <span>{{ message }}</span>
+            <button type="button" class="flash-close" aria-label="Fechar">&times;</button>
+          </p>
+        {% endfor %}
+        {% for message in stray %}
+          <p class="flash flash-error">
+            <span>{{ message }}</span>
+            <button type="button" class="flash-close" aria-label="Fechar">&times;</button>
+          </p>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if not occasion %}
+      <p class="empty-note">Banco vazio. Rode <code>python seed.py</code>.</p>
+    {% else %}
+      <div class="tabs-row">
+        <nav class="tabs" aria-label="Ocasiões">
+          {% for item in occasions %}
+            <a class="tab {% if item.id == occasion.id %}is-active{% endif %}
+                          {% if item.status == 'locked' %}is-locked{% endif %}"
+               href="{{ url_for('index', ocasiao=item.slug) }}">
+              {{ item.name }}
+            </a>
+          {% endfor %}
+        </nav>
+      </div>
+
+      {% if is_locked %}
+        <div class="panel-locked">
+          {{ magen_david() }}
+          <p class="panel-locked-title">{{ occasion.name }}</p>
+          <p class="panel-locked-text">Será liberado após Rosh Hashaná.</p>
+        </div>
+      {% elif not groups %}
+        <div class="panel-locked">
+          {{ magen_david() }}
+          <p class="panel-locked-text">Nenhuma aliyah cadastrada nesta ocasião.</p>
+        </div>
+      {% else %}
+        {% if not bidding_open %}
+          <p class="status-line">{{ closed_reason }}</p>
+        {% endif %}
+
+        {% for moment, item_count, tiers in groups %}
+          <section class="moment">
+            <header class="moment-head">
+              <div class="moment-heading">
+                <h2 class="moment-title">{{ moment }}</h2>
+                {% if moment_captions.get(moment) %}
+                  <p class="moment-caption">{{ moment_captions[moment] }}</p>
+                {% endif %}
+              </div>
+              <span class="moment-count">
+                {{ item_count }} {{ "item" if item_count == 1 else "itens" }}
+              </span>
+            </header>
+
+            {# Each tier is its own grid, so the openings, the aliyot and
+               hagbaa/glila start on a fresh row. Space separates them, nothing
+               is drawn between them. #}
+            {% for tier, items in tiers %}
+            <div class="grid grid-{{ tier }}">
+              {% for aliyah in items %}
+                {% set image = image_url_for(aliyah.image_key) %}
+                {% set current = highest.get(aliyah.id) %}
+                <article class="card" id="aliyah-{{ aliyah.id }}">
+                  {# Covers the card so any part of it opens the enlarged
+                     version. The bid button sits above it and still works. #}
+                  <button type="button" class="card-zoom"
+                          aria-label="Ver {{ aliyah.name }} em tamanho grande"></button>
+
+                  <div class="card-media media-{{ aliyah.image_key }}">
+                    {% if image %}
+                      <img src="{{ image }}" alt="" loading="lazy">
+                    {% else %}
+                      <span class="card-placeholder">{{ magen_david() }}</span>
+                    {% endif %}
+                  </div>
+
+                  <div class="card-body">
+                    <h3 class="card-name">{{ aliyah.name }}</h3>
+                    {% if aliyah.subtitle %}
+                      <p class="card-subtitle">{{ aliyah.subtitle }}</p>
+                    {% endif %}
+
+                    {% if current %}
+                      <p class="amount amount-live">{{ current | nis }}</p>
+                    {% elif aliyah.min_bid %}
+                      <p class="amount amount-min">
+                        <span class="amount-from">A partir de</span>
+                        {{ aliyah.min_bid | nis }}
+                      </p>
+                    {% else %}
+                      <p class="amount amount-min">-</p>
+                    {% endif %}
+
+                    {% set mine = own_bids.get(aliyah.id) %}
+                    {% if mine %}
+                      <form method="post" class="card-cancel"
+                            action="{{ url_for('cancel_own_bid', bid_id=mine.id) }}"
+                            onsubmit="return confirm('Anular o seu lance de {{ mine.amount | nis }}?');">
+                        <input type="hidden" name="ocasiao" value="{{ occasion.slug }}">
+                        <input type="hidden" name="aliyah_id" value="{{ aliyah.id }}">
+                        <button type="submit" class="btn-cancel">
+                          Anular meu lance
+                        </button>
+                      </form>
+                    {% endif %}
+
+                    {% if bidding_open %}
+                      <button type="button"
+                              class="btn-bid"
+                              data-aliyah-id="{{ aliyah.id }}"
+                              data-aliyah-name="{{ aliyah.label }}"
+                              data-action="{{ url_for('submit_bid', aliyah_id=aliyah.id) }}">
+                        Dar lance
+                      </button>
+                    {% endif %}
+                  </div>
+                </article>
+              {% endfor %}
+            </div>
+            {% endfor %}
+          </section>
+        {% endfor %}
+      {% endif %}
+    {% endif %}
+  </main>
+
+  <footer class="site-footer">
+    <p>Kehilat Or Israel</p>
+    <p class="footer-note">O pagamento será combinado após o encerramento do leilão.</p>
+    <a class="footer-admin" href="{{ url_for('panel_login') }}">Painel do leilão</a>
+  </footer>
+
+  {% if bidding_open %}
+    <div class="modal" id="bid-modal" hidden
+         role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-backdrop" data-close></div>
+      <div class="modal-panel" role="document">
+        <button type="button" class="modal-close" data-close aria-label="Fechar">&times;</button>
+
+        <h2 class="modal-title" id="modal-title"></h2>
+
+        {% if errors %}
+          <div class="modal-error">
+            {% for message in errors %}
+              <p>{{ message }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <form method="post" id="bid-form" class="modal-form">
+          <input type="hidden" name="ocasiao" value="{{ occasion.slug }}">
+
+          <label class="field field-amount">
+            <span class="field-label">Valor do lance (NIS)</span>
+            <input type="text" name="amount" inputmode="numeric"
+                   autocomplete="off" required>
+          </label>
+
+          <div class="field-notes">
+            <p>Seu nome não aparecerá no site, apenas o valor será público.</p>
+            <p>
+              Você poderá anular o lance em até {{ cancel_window }} minutos
+              neste mesmo aparelho.
+            </p>
+          </div>
+
+          <label class="field">
+            <span class="field-label">Nome completo</span>
+            <input type="text" name="full_name" autocomplete="name" required
+                   value="{{ prefill.get('full_name', '') }}">
+          </label>
+
+          <label class="field">
+            <span class="field-label">E-mail</span>
+            <input type="email" name="email" autocomplete="email" required
+                   value="{{ prefill.get('email', '') }}">
+          </label>
+
+          <label class="field">
+            <span class="field-label">Telefone</span>
+            <input type="tel" name="phone" autocomplete="tel" required
+                   value="{{ prefill.get('phone', '') }}">
+          </label>
+
+          <button type="submit" class="btn-confirm">Confirmar lance</button>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="modal card-modal" id="card-modal" hidden
+       role="dialog" aria-modal="true" aria-label="Aliyah ampliada">
+    <div class="modal-backdrop" data-close></div>
+    <div class="card-modal-panel" role="document">
+      <button type="button" class="modal-close" data-close aria-label="Fechar">&times;</button>
+      <div class="card-modal-slot"></div>
+    </div>
+  </div>
+
+  {% if rejected_id %}
+    <span id="reopen-marker" data-aliyah-id="{{ rejected_id }}" hidden></span>
+  {% endif %}
+{% endblock %}
