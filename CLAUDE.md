@@ -645,15 +645,23 @@ of phase 1's "Railway deploy pipeline working end to end", which was never finis
     - SELECT ... FOR UPDATE, the row lock that makes two simultaneous bids safe, is IGNORED
       by SQLite. It has never actually been exercised. Test it with real concurrent requests
       once it is on Railway.
-    - The tables must be created and the aliyot seeded on the production database. `seed.py`
-      does both, but the Procfile only starts gunicorn, so seeding needs a release step or
-      one manual run. NOT SET UP.
+    - The tables must be created and the aliyot seeded on the production database. SOLVED
+      2026-09-02: the Procfile now runs `python seed.py && gunicorn ...`, so every boot
+      creates missing tables, inserts missing aliyot and carries over renamed ones. seed.py
+      is idempotent by design and min_bid is only filled when empty, so repeating it is
+      harmless. If seeding fails the container fails to start, which is the right way round:
+      better loud than a site serving an empty auction.
 - The `subtitle` and `cancelled_at` columns were added to the local SQLite file BY HAND with
   ALTER TABLE. A fresh MySQL database gets them from the model automatically, so this is
   only a trap if a database already exists somewhere.
-- Environment variables to set in Railway: SECRET_KEY (a real random one, the local value is
-  "dev-local-only"), ADMIN_PASSWORD, VIEWER_PASSWORD. DATABASE_URL is provided by Railway.
-  SELF_CANCEL_MINUTES defaults to 10 and can be left out.
+- Environment variables to set in Railway: SECRET_KEY (a real random one), ADMIN_PASSWORD,
+  VIEWER_PASSWORD. DATABASE_URL is provided by Railway. SELF_CANCEL_MINUTES defaults to 10
+  and can be left out.
+- THE APP REFUSES TO START IN PRODUCTION WITHOUT SECRET_KEY, added 2026-09-02. The panel
+  keeps its access level in the session cookie, so running on the published development
+  default would let anyone forge an admin session. config._secret_key() raises when
+  DATABASE_URL is set and SECRET_KEY is not. Locally, with no DATABASE_URL, the development
+  default still applies and nothing changes.
 - `images_source/` is 4.6 MB of full size originals. It is NOT gitignored on purpose, so the
   originals survive, and it is outside static/ so it is never served.
 

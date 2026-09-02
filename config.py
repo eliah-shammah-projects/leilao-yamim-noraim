@@ -26,8 +26,29 @@ def _database_uri():
     return url
 
 
+DEV_SECRET_KEY = "dev-only-change-in-production"
+
+
+def _secret_key():
+    """The key that signs the session cookie.
+
+    The panel keeps its access level in that cookie, so a predictable key means
+    anyone can forge an admin session. In production, where DATABASE_URL is
+    set, refuse to start rather than run on the development default.
+    """
+    key = os.environ.get("SECRET_KEY", "").strip()
+    if key:
+        return key
+    if os.environ.get("DATABASE_URL", "").strip():
+        raise RuntimeError(
+            "SECRET_KEY nao definida. Defina uma chave aleatoria nas variaveis "
+            "de ambiente antes de subir o site."
+        )
+    return DEV_SECRET_KEY
+
+
 class Config:
-    SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-change-in-production")
+    SECRET_KEY = _secret_key()
 
     SQLALCHEMY_DATABASE_URI = _database_uri()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
