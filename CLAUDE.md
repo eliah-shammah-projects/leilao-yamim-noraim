@@ -419,6 +419,19 @@ inside its own box so the page never scrolls horizontally.
   same person. own_cancellable_bids() orders by created_at so the map keeps the NEWEST, which
   is the one that counts. This was a real bug found in testing, not a hypothetical.
 - The admin cancels anything at any time from the history page, with a confirmation.
+- NARROWED 2026-09-03, raised by Eliahu from the live site. The button used to render
+  whenever this browser had a live bid on the aliyah, which meant it sat under somebody
+  else's higher amount and read as an offer to cancel THAT. It now renders only while the
+  browser's own bid is the one winning the aliyah: `mine.amount == current` in the card.
+  The reasoning, so it is not undone: the window exists for a typo the bidder is held to,
+  and once covered they are held to nothing, so cancelling would move no figure on screen.
+  The narrow case given up is a covering bid that is itself cancelled later, which hands a
+  mistyped amount back to a bidder whose own window has passed. The admin can cancel it.
+- The label carries the amount, "Anular meu lance de 400 NIS", asked for by Eliahu the same
+  day so the button can never be read as belonging to another person's bid.
+- THE SERVER WAS NOT TOUCHED by either change. cancel_own_bid() still checks the session,
+  the cancelled flag and the window against the database, and does not ask whether the bid
+  is winning, so a stale page cancels its own covered bid harmlessly instead of erroring.
 
 ### The test data
 

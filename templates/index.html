@@ -165,15 +165,18 @@
                       <p class="amount amount-min">-</p>
                     {% endif %}
 
+                    {# The undo only shows while this browser's bid is still the
+                       winning one. Once somebody covers it, the bidder is held to
+                       nothing and cancelling would change no figure on screen. #}
                     {% set mine = own_bids.get(aliyah.id) %}
-                    {% if mine %}
+                    {% if mine and current is not none and mine.amount == current %}
                       <form method="post" class="card-cancel"
                             action="{{ url_for('cancel_own_bid', bid_id=mine.id) }}"
                             onsubmit="return confirm('Anular o seu lance de {{ mine.amount | nis }}?');">
                         <input type="hidden" name="ocasiao" value="{{ occasion.slug }}">
                         <input type="hidden" name="aliyah_id" value="{{ aliyah.id }}">
                         <button type="submit" class="btn-cancel">
-                          Anular meu lance
+                          Anular meu lance de {{ mine.amount | nis }}
                         </button>
                       </form>
                     {% endif %}
