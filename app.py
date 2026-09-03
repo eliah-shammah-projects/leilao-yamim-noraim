@@ -20,7 +20,7 @@ from sqlalchemy import func, select
 
 import mailer
 from bidding import BidRejected, place_bid
-from config import Config
+from config import DEV_SECRET_KEY, Config
 from models import (
     STATUS_CLOSED,
     STATUS_LOCKED,
@@ -69,6 +69,14 @@ TIER_BY_IMAGE_KEY = {
 
 def tier_of(aliyah):
     return TIER_BY_IMAGE_KEY.get(aliyah.image_key, aliyah.image_key)
+
+
+# A footnote under the occasion name in the hero, for a qualification that
+# belongs to one occasion and not the other. Keyed by slug so Yom Kipur can get
+# its own later without touching the template.
+OCCASION_NOTES = {
+    "rosh-hashana": "As vendas de Rosh Hashaná serão apenas do primeiro dia",
+}
 
 
 def format_nis(amount):
@@ -229,6 +237,8 @@ def register_routes(app):
             image_url_for=find_image,
             server_now=now,
             moment_captions=MOMENT_CAPTIONS,
+            occasion_note=None if occasion is None
+            else OCCASION_NOTES.get(occasion.slug),
             prefill=prefill,
             rejected_id=rejected_id,
             errors=errors,
@@ -502,8 +512,21 @@ def register_routes(app):
 
     @app.route("/health")
     def health():
+        """Liveness, plus enough about the configuration to debug a deploy.
+
+        Names and yes/no only, never a value. Which database it landed on and
+        whether the passwords arrived is exactly what is impossible to see from
+        outside when a deploy misbehaves, and none of it is a secret.
+        """
         db.session.execute(select(1))
-        return {"status": "ok"}
+        uri = app.config["SQLALCHEMY_DATABASE_URI"]
+        return {
+            "status": "ok",
+            "database": "mysql" if uri.startswith("mysql") else "sqlite",
+            "secret_key_set": app.config["SECRET_KEY"] != DEV_SECRET_KEY,
+            "admin_password_set": bool(app.config["ADMIN_PASSWORD"]),
+            "viewer_password_set": bool(app.config["VIEWER_PASSWORD"]),
+        }
 
 
 app = create_app()

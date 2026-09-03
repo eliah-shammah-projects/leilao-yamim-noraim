@@ -34,6 +34,9 @@
       <h1 class="hero-title">Leilão de Aliyot</h1>
       {% if occasion %}
         <p class="hero-occasion">{{ occasion.name }}</p>
+        {% if occasion_note %}
+          <p class="hero-note">* {{ occasion_note }}</p>
+        {% endif %}
       {% endif %}
 
       {% if bidding_open and occasion and occasion.closing_datetime %}

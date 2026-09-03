@@ -223,6 +223,16 @@ body {
   color: transparent;
 }
 
+/* The one thing about this occasion that the name alone does not say. Small
+   and quiet: it qualifies the name above it, it does not compete with it. */
+.hero-note {
+  margin: 9px 0 0;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: var(--dim);
+}
+
 /* Which of the two occasions this is. It used to be a small grey line tucked
    under the title, easy to miss, and it is the one fact that changes when the
    visitor switches tab. Now it is gold, several times the size, and it sits low
