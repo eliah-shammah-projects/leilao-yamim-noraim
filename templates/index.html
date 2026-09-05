@@ -202,9 +202,28 @@
   </main>
 
   <footer class="site-footer">
-    <p>Kehilat Or Israel</p>
-    <p class="footer-note">O pagamento será combinado após o encerramento do leilão.</p>
-    <a class="footer-admin" href="{{ url_for('panel_login') }}">Painel do leilão</a>
+    <div class="footer-inner">
+      <p class="footer-name">Kehilat Or Israel</p>
+
+      <h2 class="footer-h2">Como funciona</h2>
+      <ul class="footer-rules">
+        <li>Todas as aliyot desta lista serão vendidas em leilão.</li>
+        <li>Vence quem tiver o maior lance no momento do encerramento.</li>
+        <li>Nenhum nome aparece no site. Só o valor do maior lance é público.</li>
+        {# Written out of the stored closing datetime, never typed by hand, so
+           moving the date in the panel moves this line with it. #}
+        {% if occasion and occasion.closing_datetime %}
+          <li>
+            O leilão de {{ occasion.name }}
+            {% if server_now < occasion.closing_datetime %}encerra{% else %}encerrou{% endif %}
+            {{ occasion.closing_datetime | israel_long }} (horário de Israel).
+          </li>
+        {% endif %}
+        <li>O pagamento será combinado com a Kehila após o encerramento.</li>
+      </ul>
+
+      <a class="footer-admin" href="{{ url_for('panel_login') }}">Painel do leilão</a>
+    </div>
   </footer>
 
   {% if bidding_open %}

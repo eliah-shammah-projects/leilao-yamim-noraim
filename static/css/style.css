@@ -1023,7 +1023,12 @@ body {
   color: var(--dim);
 }
 
-.site-footer p {
+.footer-inner {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.footer-name {
   margin: 0;
   font-size: 12px;
   font-weight: 600;
@@ -1032,13 +1037,46 @@ body {
   color: var(--gold);
 }
 
-.footer-note {
-  margin-top: 12px;
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  text-transform: none;
+.footer-h2 {
+  margin: 34px 0 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
   color: var(--faint);
+}
+
+/* The notices read left aligned, not centred: they are sentences, and a
+   centred block of sentences is harder to follow on a phone. */
+.footer-rules {
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.footer-rules li {
+  position: relative;
+  padding-left: 20px;
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--dim);
+}
+
+.footer-rules li:first-child {
+  margin-top: 0;
+}
+
+.footer-rules li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.62em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
 }
 
 .empty-note {
@@ -1221,7 +1259,7 @@ code {
 
 .footer-admin {
   display: inline-block;
-  margin: 18px 0 0;
+  margin: 34px 0 0;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.18em;

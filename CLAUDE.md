@@ -274,11 +274,21 @@ Confirm the reading before building.
 1. DONE 2026-09-01. "dividir alia de abertura e outras coisa em andares diferentes"
    Built as three tiers inside Shacharit, plus the renaming below.
 
-2. "arrumar foots"
-   Reading: the footer needs work. It is currently two lines, the community name and a note
-   that payment is arranged after the auction.
-   Open: what exactly is wrong with it. Too empty, too plain, missing contact details,
-   missing the logo?
+2. DONE 2026-09-05. "arrumar foots", settled when Eliahu said what was missing: the footer
+   had to carry the notices. Built as "Como funciona", a gold-bulleted list under the
+   community name:
+     - todas as aliyot serao vendidas em leilao
+     - vence o maior lance no momento do encerramento
+     - nenhum nome aparece no site, so o valor
+     - a data do encerramento
+     - o pagamento e combinado com a Kehila depois
+   THE CLOSING LINE IS DERIVED, never typed: it reads occasion.closing_datetime through the
+   `israel_long` filter, so changing the date in the panel changes the footer, and the tab
+   the visitor is on decides which occasion is named. It says "encerra" before the date and
+   "encerrou" after, compared against server_now. No closing date on the occasion (Yom Kipur
+   before it is configured) and the line is simply absent.
+   The list is LEFT ALIGNED inside a centred 620px block. Centred sentences are harder to
+   read on a phone, and most visitors are on one.
 
 3. DONE 2026-09-01. "quando o valor ser sugerido por alguem ele tera q estar palpitando
    dentro de uma borda ouro" - an amount that someone has actually bid now sits in a gold

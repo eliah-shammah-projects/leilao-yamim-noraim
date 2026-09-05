@@ -79,6 +79,30 @@ OCCASION_NOTES = {
 }
 
 
+# The article travels with the weekday because it changes gender: "na
+# quinta-feira" but "no sabado". Keeping them together means the sentence
+# around this filter never has to know which day it got.
+WEEKDAYS_PT = [
+    "na segunda-feira",
+    "na terça-feira",
+    "na quarta-feira",
+    "na quinta-feira",
+    "na sexta-feira",
+    "no sábado",
+    "no domingo",
+]
+
+
+def format_israel_long(moment):
+    """A date written out for a reader: "na quinta-feira, 10/09/2026, as 22:00"."""
+    if moment is None:
+        return ""
+    local = to_display(moment)
+    return "{}, {:%d/%m/%Y}, às {:%H:%M}".format(
+        WEEKDAYS_PT[local.weekday()], local, local
+    )
+
+
 def format_nis(amount):
     """Format an amount as shekels, thousands separated by a dot.
 
@@ -164,6 +188,10 @@ def create_app(config_object=Config):
     app.jinja_env.filters["israel_input"] = lambda moment: (
         "" if moment is None else "{:%Y-%m-%dT%H:%M}".format(to_display(moment))
     )
+    # Spelled out, for the notice in the footer. The weekday is what people
+    # actually remember, and it is derived from the stored date rather than
+    # written by hand, so moving the closing in the panel moves this too.
+    app.jinja_env.filters["israel_long"] = format_israel_long
     register_routes(app)
 
     return app
