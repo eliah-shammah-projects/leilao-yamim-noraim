@@ -50,7 +50,7 @@ This is a completely separate project from the seat-reservation app. Different r
 
 ## Occasions and Items
 
-### Rosh Hashanah — FIRST DAY ONLY (13 items, in this order)
+### Rosh Hashanah — FIRST DAY ONLY (13 items, in this order; 12 on sale)
 
 Grouped by moment, and inside Shacharit by tier. RENAMED 2026-09-01, see the
 naming decision below. The card shows the name, and the subtitle under it in
@@ -68,7 +68,7 @@ smaller type where there is one.
 5. Shlishi
 6. Revii
 7. Hamishi
-8. Shishi
+8. Shishi - WITHDRAWN 2026-09-06, see below. Still listed here and still row 8.
 9. Maftir
 
 **Shacharit — tier 3, hagbaa and glila**
@@ -76,6 +76,32 @@ smaller type where there is one.
 11. Glila 1
 12. Hagbaa 2
 13. Glila 2
+
+### Withdrawing an item
+
+Added 2026-09-06, when Eliahu said the kehila would not sell the Shishi after all, with the
+auction already open.
+
+AN ITEM IS NEVER DELETED. `aliyot.is_active` goes False and that is the whole mechanism:
+the card disappears from the public page, place_bid() refuses a bid on it even from a page
+opened before the change, and the panel keeps the row dimmed with a "Fora do leilao" tag.
+Bids already placed on it stay in the database, because a bid has a person behind it who
+may have to be answered, and business rule 7 keeps the full history.
+
+The list lives in `WITHDRAWN` in seed.py, keyed by (occasion slug, aliyah name). The row
+stays in ROSH_HASHANA_ALIYOT so its display_order stays taken. Putting an item back in the
+auction is deleting one line from WITHDRAWN and deploying. The seed enforces the flag on
+every boot, the same way it enforces names, so a redeploy never resurrects a withdrawn item.
+
+Eliahu said nobody had bid on the Shishi when it was pulled. It was still done this way,
+because that fact was not knowable from here: the live data is on Railway.
+
+SCHEMA MIGRATIONS, first time this was needed. db.create_all() creates missing TABLES and
+never alters an existing one, so a new column on a model that is already deployed does not
+appear on Railway by itself. `ensure_columns()` in seed.py checks the live table and runs the
+ALTER when the column is missing. It runs on every boot from the Procfile, checks before it
+acts, and was tested against the real pre-change database. ANY FUTURE COLUMN NEEDS THE SAME
+TREATMENT, or it will work locally on a fresh SQLite file and break on the deploy.
 
 ### Yom Kippur
 

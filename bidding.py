@@ -86,6 +86,12 @@ def place_bid(aliyah_id, full_name, email, phone, amount_raw, now, format_amount
         if aliyah is None:
             raise BidRejected("Aliyah nao encontrada.")
 
+        # A page opened before the item was withdrawn can still post to it.
+        if not aliyah.is_active:
+            raise BidRejected(
+                f"{aliyah.label} nao faz mais parte do leilao."
+            )
+
         occasion = db.session.get(Occasion, aliyah.occasion_id)
         if not occasion.is_bidding_open(now):
             raise BidRejected(occasion.closed_reason(now))

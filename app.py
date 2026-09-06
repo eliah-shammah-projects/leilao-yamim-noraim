@@ -216,9 +216,15 @@ def register_routes(app):
 
         if occasion is not None:
             bidding_open = occasion.is_bidding_open(now)
+            # A withdrawn item disappears from the public page entirely. It
+            # stays in the panel, because bids placed before it was withdrawn
+            # are still history somebody may have to answer for.
             aliyot = db.session.scalars(
                 select(Aliyah)
-                .where(Aliyah.occasion_id == occasion.id)
+                .where(
+                    Aliyah.occasion_id == occasion.id,
+                    Aliyah.is_active.is_(True),
+                )
                 .order_by(Aliyah.display_order)
             ).all()
             # Items arrive in display order, so items of the same moment already

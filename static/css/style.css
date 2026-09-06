@@ -1546,6 +1546,27 @@ code {
   color: var(--faint);
 }
 
+/* Withdrawn from the auction. Dimmed rather than hidden: any bid placed
+   before the withdrawal still has a person behind it. */
+.row-withdrawn .cell-name,
+.row-withdrawn td {
+  color: var(--faint);
+}
+
+.cell-tag {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 9px;
+  border: 1px solid var(--blue-line);
+  border-radius: 999px;
+  background: var(--blue);
+  color: var(--blue-mark);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 .cell-amount {
   color: var(--gold-bright);
   font-variant-numeric: tabular-nums;

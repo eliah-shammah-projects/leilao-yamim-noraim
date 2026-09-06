@@ -96,9 +96,12 @@
           </thead>
           <tbody>
             {% for aliyah, bid, count in rows %}
-              <tr>
+              <tr {% if not aliyah.is_active %}class="row-withdrawn"{% endif %}>
                 <td>
                   <span class="cell-name">{{ aliyah.name }}</span>
+                  {% if not aliyah.is_active %}
+                    <span class="cell-tag">Fora do leilão</span>
+                  {% endif %}
                   {% if aliyah.subtitle %}
                     <span class="cell-sub">{{ aliyah.subtitle }}</span>
                   {% endif %}

@@ -7,7 +7,7 @@ Safe to run more than once: existing rows are left untouched.
 
 from decimal import Decimal
 
-from sqlalchemy import select
+from sqlalchemy import inspect, select, text
 
 from app import create_app
 from models import (
@@ -53,6 +53,18 @@ ROSH_HASHANA_ALIYOT = [
     (13, MOMENT_SHACHARIT, "Glila 2", None, "glila"),
 ]
 
+# Items withdrawn from the auction, keyed by (occasion slug, aliyah name).
+# The row stays in the list above so its display_order stays taken and putting
+# it back is one line. Withdrawing does NOT delete anything: bids already
+# placed on it are kept, and the panel still shows them.
+#
+# Shishi was withdrawn on 2026-09-06, with the auction already open, because
+# the kehila decided not to sell it.
+WITHDRAWN = {
+    ("rosh-hashana", "Shishi"),
+}
+
+
 # Yom Kipur exists as a locked tab. Its item list has not been defined yet,
 # so no aliyot are created for it.
 OCCASIONS = [
@@ -78,6 +90,7 @@ def seed():
     created_aliyot = 0
     renamed_aliyot = 0
     filled_minimums = 0
+    withdrawn_changed = 0
 
     for spec in OCCASIONS:
         occasion = db.session.scalar(
@@ -95,6 +108,7 @@ def seed():
             created_occasions += 1
 
         for order, moment, name, subtitle, image_key in spec["aliyot"]:
+            active = (spec["slug"], name) not in WITHDRAWN
             exists = db.session.scalar(
                 select(Aliyah).where(
                     Aliyah.occasion_id == occasion.id,
@@ -110,6 +124,7 @@ def seed():
                         name=name,
                         subtitle=subtitle,
                         image_key=image_key,
+                        is_active=active,
                         min_bid=MIN_BID_BY_IMAGE_KEY[image_key],
                     )
                 )
@@ -123,6 +138,13 @@ def seed():
                 exists.subtitle = subtitle
                 renamed_aliyot += 1
 
+            # Withdrawal is decided here, not in the admin, so a redeploy
+            # carries it to a row that already exists, and putting a name back
+            # in the auction is done by removing it from WITHDRAWN.
+            if exists.is_active != active:
+                exists.is_active = active
+                withdrawn_changed += 1
+
             if exists.min_bid is None:
                 # Only fill an empty minimum. An admin who changed a value must
                 # not have it reset by the next deploy.
@@ -130,19 +152,44 @@ def seed():
                 filled_minimums += 1
 
     db.session.commit()
-    return created_occasions, created_aliyot, renamed_aliyot, filled_minimums
+    return (
+        created_occasions,
+        created_aliyot,
+        renamed_aliyot,
+        filled_minimums,
+        withdrawn_changed,
+    )
+
+
+def ensure_columns():
+    """Add columns that a database created by an older deploy does not have.
+
+    db.create_all() creates missing TABLES and never alters an existing one, so
+    a column added to a model after the first deploy has to be added by hand.
+    This runs on every boot, checks before it acts, and is therefore safe to
+    repeat. The one statement below is accepted by both SQLite and MySQL.
+    """
+    columns = {c["name"] for c in inspect(db.engine).get_columns("aliyot")}
+    if "is_active" not in columns:
+        with db.engine.begin() as connection:
+            connection.execute(
+                text("ALTER TABLE aliyot ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT 1")
+            )
+        print("Added column aliyot.is_active.")
 
 
 def main():
     app = create_app()
     with app.app_context():
         db.create_all()
-        occasions, aliyot, renamed, minimums = seed()
+        ensure_columns()
+        occasions, aliyot, renamed, minimums, withdrawn = seed()
         print("Tables ready.")
         print(f"Occasions created: {occasions}")
         print(f"Aliyot created: {aliyot}")
         print(f"Aliyot renamed: {renamed}")
         print(f"Minimum bids filled: {minimums}")
+        print(f"Withdrawal flags changed: {withdrawn}")
 
 
 if __name__ == "__main__":

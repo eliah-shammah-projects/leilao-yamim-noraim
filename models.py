@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import (
+    Boolean,
     DateTime,
     ForeignKey,
     Integer,
@@ -17,6 +18,7 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
     select,
+    text,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -149,6 +151,13 @@ class Aliyah(db.Model):
     moment_group: Mapped[str] = mapped_column(String(40), nullable=False)
     display_order: Mapped[int] = mapped_column(Integer, nullable=False)
     image_key: Mapped[str] = mapped_column(String(40), nullable=False)
+
+    # An item withdrawn from the auction. The row is never deleted: bids on it
+    # are history and a withdrawal can be undone. False hides the card, refuses
+    # new bids, and marks the row in the panel.
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True, server_default=text("1")
+    )
 
     # Present in the schema and in the admin UI, intentionally unused for now.
     min_bid: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
