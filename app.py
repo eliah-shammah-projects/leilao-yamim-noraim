@@ -347,7 +347,7 @@ def register_routes(app):
         )
         if bid is None or bid.id != bid_id:
             flash(
-                "Este lance nao pode mais ser anulado por aqui. "
+                "Este lance não pode mais ser anulado por aqui. "
                 "Fale com a Kehila.",
                 "error",
             )

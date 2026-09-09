@@ -16,6 +16,11 @@ from models import Aliyah, Bid, Occasion, db
 # rather than let the database raise on overflow.
 MAX_AMOUNT = Decimal("9999999")
 
+# Raising a bid moves it by at least this much. Asked for 2026-09-09: an
+# aliyah at 350 is next taken at 450, not at 351. It only applies once there
+# is a bid to beat; the first bid on an aliyah still answers to min_bid alone.
+MIN_INCREMENT = Decimal("100")
+
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s.]+\.[^@\s]+$")
 
 # "1.200" and "1.200,50": dots only count as thousands separators when every
@@ -39,14 +44,14 @@ def parse_amount(raw):
     try:
         amount = Decimal(text)
     except InvalidOperation:
-        raise BidRejected("Valor invalido. Digite apenas numeros, por exemplo 1200.")
+        raise BidRejected("Valor inválido. Digite apenas números, por exemplo 1200.")
 
     if not amount.is_finite():
-        raise BidRejected("Valor invalido. Digite apenas numeros, por exemplo 1200.")
+        raise BidRejected("Valor inválido. Digite apenas números, por exemplo 1200.")
     if amount <= 0:
         raise BidRejected("O valor precisa ser maior que zero.")
     if amount > MAX_AMOUNT:
-        raise BidRejected("Valor alto demais. Confira o numero digitado.")
+        raise BidRejected("Valor alto demais. Confira o número digitado.")
 
     return amount.quantize(Decimal("0.01"))
 
@@ -59,9 +64,9 @@ def clean_contact(full_name, email, phone):
     if len(full_name) < 2:
         raise BidRejected("Informe seu nome completo.")
     if not EMAIL_RE.match(email):
-        raise BidRejected("Informe um e-mail valido.")
+        raise BidRejected("Informe um e-mail válido.")
     if len(re.sub(r"\D", "", phone)) < 8:
-        raise BidRejected("Informe um telefone valido, com DDD.")
+        raise BidRejected("Informe um telefone válido, com DDD.")
 
     return full_name, email, phone
 
@@ -84,12 +89,12 @@ def place_bid(aliyah_id, full_name, email, phone, amount_raw, now, format_amount
             select(Aliyah).where(Aliyah.id == aliyah_id).with_for_update()
         ).scalar_one_or_none()
         if aliyah is None:
-            raise BidRejected("Aliyah nao encontrada.")
+            raise BidRejected("Aliyah não encontrada.")
 
         # A page opened before the item was withdrawn can still post to it.
         if not aliyah.is_active:
             raise BidRejected(
-                f"{aliyah.label} nao faz mais parte do leilao."
+                f"{aliyah.label} não faz mais parte do leilão."
             )
 
         occasion = db.session.get(Occasion, aliyah.occasion_id)
@@ -108,13 +113,16 @@ def place_bid(aliyah_id, full_name, email, phone, amount_raw, now, format_amount
             minimum = aliyah.min_bid
             if minimum is not None and amount < minimum:
                 raise BidRejected(
-                    f"O lance minimo para {aliyah.label} e "
+                    f"O lance mínimo para {aliyah.label} é "
                     f"{format_amount(minimum)}."
                 )
-        elif amount <= current_highest:
+        elif amount < current_highest + MIN_INCREMENT:
             raise BidRejected(
-                f"O maior lance para {aliyah.label} ja e "
-                f"{format_amount(current_highest)}. Ofereca um valor maior."
+                f"O maior lance para {aliyah.label} já é "
+                f"{format_amount(current_highest)}. Apenas lances de "
+                f"{format_amount(MIN_INCREMENT)} a mais que o anterior estão "
+                f"sendo aceitos: ofereça "
+                f"{format_amount(current_highest + MIN_INCREMENT)} ou mais."
             )
 
         bid = Bid(

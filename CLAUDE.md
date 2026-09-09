@@ -25,7 +25,11 @@ This is a completely separate project from the seat-reservation app. Different r
 ## Business Rules
 
 1. Anyone can view the site and place bids. No login for the public.
-2. A bid is valid ONLY if strictly greater than the current highest bid for that aliyah. Equal bids are rejected with a clear message showing the current highest.
+2. A bid is valid ONLY if it clears the current highest bid for that aliyah by at
+   least the STEP of 100 NIS. AMENDED 2026-09-09, see the decision below: strictly
+   greater is no longer enough, so an aliyah sitting at 350 is next taken at 450.
+   Anything from the current amount up to one shekel below the step is rejected with
+   a message naming the current highest AND the amount that would be accepted.
 3. Bid validation must be atomic at the database level (transaction / SELECT ... FOR UPDATE), not against what the user saw on screen. Concurrent bids must never both succeed at the same value.
 4. Every bid requires: full name, email, phone. Required fields, basic validation.
 5. Names of bidders NEVER appear on the public site. Only the current highest amount per aliyah.
@@ -516,6 +520,30 @@ Wiping is done by hand if it is ever needed again.
 - Whether the Arvit card should follow the Pticha naming pattern.
 
 ## Decisions Taken
+
+- 2026-09-09 EVERY MESSAGE THE VISITOR READS IS SPELLED WITH ACCENTS. The ten rejection
+  messages in bidding.py and the self-cancel refusal in app.py were written without them
+  ("Valor invalido", "ofereca", "nao encontrada"). Eliahu's reason for the old spelling, so
+  nobody reads it as a style: "no meu teclado nao tem". This finishes what the 2026-09-02
+  entry started on closed_reason(). Anything new that a visitor or the panel reads is
+  written properly from here on; code, comments and this file stay in plain ASCII English.
+  Still unaccented and left alone for now: three panel-only lines, "Senha incorreta", "Data
+  invalida" and "{ocasiao}: estado alterado".
+
+- 2026-09-09 BIDS RISE IN STEPS OF 100 NIS. `MIN_INCREMENT` in bidding.py, one branch
+  inside place_bid(): a raise must reach current + 100, not current + 0.01. Asked for by
+  Eliahu, so a contested aliyah is not walked up one shekel at a time.
+  THE STEP IS A MINIMUM, NOT A GRID. Above the floor any amount passes, so 350 can be
+  answered with 450, 500 or 720. Eliahu chose this over multiples of 100, which would
+  refuse 480 as well.
+  THE FIRST BID ON AN ALIYAH IS UNTOUCHED. With no bid to beat there is nothing to step
+  up from, so min_bid alone decides it and 400 is still accepted on an aliyah, 200 on a
+  hagbaa or glila. Only from the second bid on does the step apply.
+  NOTHING WAS DELETED OR MIGRATED. No column, no table, no seed change, and every bid
+  already in the database keeps its amount. Only bids arriving after the deploy are judged
+  by the new rule, which means a live auction can adopt it mid-flight.
+  Tested against a COPY of the local database, not the working one: 399 refused, 400 taken,
+  401/450/499 refused over 400, 500 and 720 taken, 720 refused over 720, 820 taken.
 
 - 2026-09-01 Site UI language: Portuguese. Aliyah names stay exactly as written in this file.
 - 2026-09-01 Currency: ILS (shekel).
