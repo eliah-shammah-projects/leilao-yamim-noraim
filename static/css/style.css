@@ -786,17 +786,19 @@ body {
   background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 100%);
   color: var(--bg);
   font-weight: 600;
-  animation: bid-pulse 1.7s var(--ease) infinite;
 }
 
+/* The beat lives on the bid button now, not on the amount. Gentler than the
+   one the amount used to carry: the button spans the card, and the card clips
+   at its edge, so scale and ring together stay inside the 16px of padding. */
 @keyframes bid-pulse {
   0% {
     transform: scale(1);
     box-shadow: 0 0 0 0 rgba(236, 205, 130, 0.55);
   }
   55% {
-    transform: scale(1.07);
-    box-shadow: 0 0 0 13px rgba(236, 205, 130, 0);
+    transform: scale(1.04);
+    box-shadow: 0 0 0 9px rgba(236, 205, 130, 0);
   }
   100% {
     transform: scale(1);
@@ -810,8 +812,10 @@ body {
   z-index: 2;
   margin-top: auto;
   width: 100%;
-  padding: 9px 16px;
-  border: 1px solid var(--line-strong);
+  /* A pixel less padding pays for the pixel more border, so the button keeps
+     its height. */
+  padding: 8px 16px;
+  border: 2px solid var(--gold);
   border-radius: 999px;
   background: transparent;
   color: var(--gold);
@@ -821,6 +825,7 @@ body {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   cursor: pointer;
+  animation: bid-pulse 1.7s var(--ease) infinite;
   transition: background-color 0.45s var(--ease),
               color 0.45s var(--ease),
               border-color 0.45s var(--ease);
@@ -929,7 +934,7 @@ body {
 }
 
 .card-big .btn-bid {
-  padding: 13px 16px;
+  padding: 12px 16px;
   font-size: 12px;
 }
 
