@@ -588,8 +588,11 @@ Wiping is done by hand if it is ever needed again.
   A heartbeat came next (two quick beats, a ring and a glow) and Eliahu found it "meio
   brega", so it was replaced the same day by his option three: a band of light crosses the
   button (::after, clipped by the button's overflow) while the button grows by 8 percent,
-  his number, and settles, over 2.6s with a rest. A beat that fills the button with gold
-  was the other option offered and was not chosen.
+  his number, and settles. A beat that fills the button with gold was the other option
+  offered and was not chosen. First deployed as a 2.6s cycle with a rest after each sweep;
+  Eliahu wanted "palpitadas mais constantes", so the rest was taken out: 1.4s, the button
+  growing to its peak at the half and back with no pause, the light crossing in the first
+  80 percent of every cycle.
   THE GROWTH IS --beat-scale, SET PER CONTEXT, because the button spans the card and the
   card clips at its edge: a percentage that fits a 200px button cuts a 500px one. 1.08 on
   the desktop grid, in the enlarged card and in the phone list row up to 480px, 1.04 in the
