@@ -575,6 +575,20 @@ Wiping is done by hand if it is ever needed again.
 
 ## Decisions Taken
 
+- 2026-09-14 THE BEAT MOVED FROM THE AMOUNT TO THE "DAR LANCE" BUTTON. Suggested by someone
+  in the kehila and approved by Eliahu. This REVERSES the movement half of the 2026-09-01
+  pill decision below, not the pill: an amount somebody has bid still sits in the gold
+  filled pill, only static now. The button stays OUTLINED in gold (his choice over a filled
+  button, since thirteen of them beat at once), with the outline thickened at his ask the
+  same day, first from 1px to 2px and then to 3px in SOLID --gold ("mais grosso e
+  dourado"), since the faint --line-strong it used to be read as brown, not gold. The
+  padding gives back what the border takes, so the button keeps its height. It beats on
+  every card where it shows,
+  with or without a bid, and in the enlarged card too. Where there is no button, as on a
+  closed occasion, nothing moves. The keyframe is gentler than the old one, scale 1.04 and
+  a 9px ring instead of 1.07 and 13px, because the button spans the card and the card
+  clips at its edge. Reduced motion is still honoured by the global rule.
+
 - 2026-09-14 THE PUBLIC PAGE NEVER SHOWS THE CLOSING HOUR. Asked for by the kehila through
   Eliahu: "nao mostrar as horas q vai terminar p ngm ficar esperando e sim apenas mostrar
   qtos dias falta". The auction still closes at the exact datetime set in the panel; only
