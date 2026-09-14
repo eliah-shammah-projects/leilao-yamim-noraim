@@ -37,7 +37,10 @@ This is a completely separate project from the seat-reservation app. Different r
 7. All bids are stored (full history), not just the highest.
 8. Admin receives an email on every new valid bid (aliyah, amount, name, email, phone).
 9. The auction has an opening datetime AND a closing datetime (both configurable in admin). Before opening: site visible, bidding disabled, shows "opens at [date]". After closing: bidding closed, site shows final results (amounts only).
-9b. Countdown timer: while the auction is open, the hero shows a prominent countdown (days, hours, minutes, seconds) to the closing datetime, styled in gold to match the design. Server time is the source of truth: the on-screen countdown syncs with server time on page load, and bid acceptance/rejection near the deadline is decided by the backend against server/database time, never the visitor's clock. After closing, the countdown disappears.
+9b. AMENDED 2026-09-14, see the decision of that date: the countdown now shows WHOLE DAYS
+    ONLY and the closing hour never appears on the public page. The text below is the
+    original rule, kept for the history.
+    Countdown timer: while the auction is open, the hero shows a prominent countdown (days, hours, minutes, seconds) to the closing datetime, styled in gold to match the design. Server time is the source of truth: the on-screen countdown syncs with server time on page load, and bid acceptance/rejection near the deadline is decided by the backend against server/database time, never the visitor's clock. After closing, the countdown disappears.
 10. On closing, the system sends the admin a final report email: every aliyah with winning amount + winner name, email, phone.
 11. Minimum bid per aliyah: ACTIVE since 2026-09-01 (this replaces the earlier
     "field exists but disabled" rule). Every aliyah has a starting minimum in ILS,
@@ -107,9 +110,44 @@ ALTER when the column is missing. It runs on every boot from the Procfile, check
 acts, and was tested against the real pre-change database. ANY FUTURE COLUMN NEEDS THE SAME
 TREATMENT, or it will work locally on a fresh SQLite file and break on the deploy.
 
-### Yom Kippur
+### Yom Kippur (13 items, in this order)
 
-Item list NOT defined yet. Build the occasion structure (tab exists, locked state), leave items empty. Do not invent items.
+SUPPLIED 2026-09-14 by Eliahu, with the minimums. Unlike Rosh Hashana the minimum is set PER
+ITEM in YOM_KIPUR_ALIYOT (a sixth tuple element), not by image group, because Parnassa and
+Maftir Yona share photographs with items that start much lower.
+
+**Arvit (Kol Nidrei)**
+1. Kol Nidrei / Sefer 1 - 500
+2. Kol Nidrei / Sefer 2 - 500
+3. Ptichat Heichal (Parnassa) / Abertura do Aron - 1000
+
+**Shacharit** - no Ptichat Heichal in the morning, confirmed
+4. Cohen - 500
+5. Shlishi - 500
+6. Revii - 500
+7. Hagbaa 1 - 300
+8. Glila 1 - 300
+   (Hagbaa 2 and Glila 2 were in the first list and REMOVED by Eliahu. The "1" stays in the
+   name, his choice.)
+
+**Mincha (Tarde)** - a new moment, with the same blue rule above it, confirmed
+9. Levi - 500
+10. Maftir Yona - 2000
+11. Hagbaa - 300
+12. Glila - 300
+
+**Neila (Fim do dia)** - a new moment, added later the same day
+13. Ptichat Heichal (em honra ao Rav) / Abertura do Aron - 1000
+    Named after the Parnassa pattern, Eliahu's choice. It IS sold and takes bids like any
+    other item; "em honra ao Rav" means the Rav is the one who opens the Aron. pticha photo.
+
+`kol_nidrei` is a new image_key, used by both Kol Nidrei cards. It gets its own tier row in
+Arvit. Photograph supplied the same day, see Images.
+
+The step of 100 NIS applies unchanged; Eliahu confirmed it is a minimum, so +150 is fine.
+
+The tab is still LOCKED. Whether it is unlocked from the panel or opened by the deploy is
+"falamos depois". Do not unlock it without asking.
 
 ## Database Schema (guideline)
 
@@ -181,6 +219,12 @@ Updated 2026-09-01, when Eliahu supplied the files.
   background, which is the file in use. It still reads lighter than the other cards, but it
   leans amber and sits inside the palette instead of fighting it. Keep any future
   replacement warm and dark, and prefer a frame where the sefer is not a narrow strip.
+- `kol_nidrei` - used by: Kol Nidrei Sefer 1 and Sefer 2 (Yom Kipur) - PROVIDED 2026-09-14:
+  `kol_nidrei.jpg` (a sefer in a cream mantle embroidered in gold, "ספר תורה / יום כיפור /
+  כל נדרי", held against a tallit with blue stripes). Generated image, 1408x768 like the
+  others. Exported at 700 wide, 58 KB. No --zoom and no CSS rule: the embroidered text sits
+  at the centre, and both the 3:2 desktop crop and the upright phone strip were checked and
+  keep it in frame. The mantle is cream, so this card reads lighter than the rest of the page.
 - `hero` - PROVIDED: `hero.jpg` (congregation from behind in white tallitot facing the
   illuminated golden Aron, candlelight). Dark warm veil over it, object-position center so
   the Aron stays the focal point. Animated with the slow Ken Burns zoom.
@@ -514,12 +558,36 @@ Wiping is done by hand if it is ever needed again.
 
 ## Open Questions (do not decide alone — ask Eliahu)
 
-- Yom Kippur item list. Still nothing. It also blocks the "go to Yom Kipur" call to action,
-  because the tab it would point at is empty and locked.
+- Yom Kippur item list. SUPPLIED 2026-09-14, see Occasions and Items. The tab is still
+  locked, so the "go to Yom Kipur" call to action still points at a locked tab.
+- Who unlocks Yom Kipur and when. Deferred by Eliahu on 2026-09-14.
 - The footer, pending request 2. What is actually wrong with it has never been said.
 - Whether the Arvit card should follow the Pticha naming pattern.
 
 ## Decisions Taken
+
+- 2026-09-14 THE PUBLIC PAGE NEVER SHOWS THE CLOSING HOUR. Asked for by the kehila through
+  Eliahu: "nao mostrar as horas q vai terminar p ngm ficar esperando e sim apenas mostrar
+  qtos dias falta". The auction still closes at the exact datetime set in the panel; only
+  the display changed.
+  - Hero: one tile, "3 dias" / "1 dia", and on the closing day "Encerra hoje" (his choice
+    over "Ultimo dia"), without the "Para o leilao fechar" note under it.
+  - DAYS ARE CALENDAR DAYS IN ISRAEL, from closing_countdown() in app.py. A 24-hour count
+    would turn over at 22:00, the closing hour itself, and give it away anyway. The figure
+    turns over at midnight in Israel.
+  - THE CLOSING DATETIME IS NOT IN THE HTML AT ALL. The old data-closing and data-now
+    attributes are gone. The page only gets data-refresh-in, the seconds until the next
+    Israel midnight, and site.js reloads then (postponed while a modal is open, so a bid
+    being typed is never lost).
+  - Consequence, accepted: the page no longer reloads by itself at the closing minute,
+    because it does not know it. A bid sent after the close is refused by the server, as
+    it always was, and the next load shows the closed state.
+  - Footer: "encerra na quinta-feira, 17/09/2026." The israel_long filter lost the hour and
+    the "(horario de Israel)" went with it.
+  - UNCHANGED on purpose: after the close, closed_reason() still says "encerrou em ... as
+    22:00", agreed with Eliahu, since it no longer matters. The opening line "abre em ... as
+    20:00" is untouched. The panel still shows full datetimes.
+  - A change of closing date in the panel reaches all of it on the next page load.
 
 - 2026-09-09 EVERY MESSAGE THE VISITOR READS IS SPELLED WITH ACCENTS. The ten rejection
   messages in bidding.py and the self-cancel refusal in app.py were written without them
@@ -756,7 +824,7 @@ payment obligation to the kehila. Raise it with Eliahu before launch rather than
 - The "auction is over, go to Yom Kipur" block. See Still Open On The Schedule.
 - Phase 7, final QA. The images are swapped in and resized already.
 - The footer, pending request 2, never specified.
-- The Yom Kipur aliyot list, which blocks unlocking that tab at all.
+- The Yom Kipur aliyot list. DONE 2026-09-14, with the kol_nidrei photograph.
 
 ## Build Phases
 

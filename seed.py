@@ -12,6 +12,8 @@ from sqlalchemy import inspect, select, text
 from app import create_app
 from models import (
     MOMENT_ARVIT,
+    MOMENT_MINCHA,
+    MOMENT_NEILA,
     MOMENT_SHACHARIT,
     STATUS_LOCKED,
     STATUS_UPCOMING,
@@ -65,8 +67,31 @@ WITHDRAWN = {
 }
 
 
-# Yom Kipur exists as a locked tab. Its item list has not been defined yet,
-# so no aliyot are created for it.
+# Yom Kipur, supplied by Eliahu on 2026-09-14. Unlike Rosh Hashana the minimum
+# is set per item, not by image group: Ptichat Heichal (Parnassa) and Maftir
+# Yona share photographs with items that start far lower. Hagbaa 2 and Glila 2
+# were dropped from Shacharit; Mincha keeps a single Hagbaa and Glila without a
+# number. kol_nidrei has no photograph yet and shows the Magen David fallback.
+#
+#   (display_order, moment, name, subtitle, image_key, min_bid)
+YOM_KIPUR_ALIYOT = [
+    (1, MOMENT_ARVIT, "Kol Nidrei", "Sefer 1", "kol_nidrei", Decimal("500")),
+    (2, MOMENT_ARVIT, "Kol Nidrei", "Sefer 2", "kol_nidrei", Decimal("500")),
+    (3, MOMENT_ARVIT, "Ptichat Heichal (Parnassa)", "Abertura do Aron", "pticha", Decimal("1000")),
+    (4, MOMENT_SHACHARIT, "Cohen", None, "aliyah", Decimal("500")),
+    (5, MOMENT_SHACHARIT, "Shlishi", None, "aliyah", Decimal("500")),
+    (6, MOMENT_SHACHARIT, "Revii", None, "aliyah", Decimal("500")),
+    (7, MOMENT_SHACHARIT, "Hagbaa 1", None, "hagbaa", Decimal("300")),
+    (8, MOMENT_SHACHARIT, "Glila 1", None, "glila", Decimal("300")),
+    (9, MOMENT_MINCHA, "Levi", None, "aliyah", Decimal("500")),
+    (10, MOMENT_MINCHA, "Maftir Yona", None, "aliyah", Decimal("2000")),
+    (11, MOMENT_MINCHA, "Hagbaa", None, "hagbaa", Decimal("300")),
+    (12, MOMENT_MINCHA, "Glila", None, "glila", Decimal("300")),
+    # Added the same day. Sold like any other item; the Rav is the one who opens.
+    (13, MOMENT_NEILA, "Ptichat Heichal (em honra ao Rav)", "Abertura do Aron", "pticha", Decimal("1000")),
+]
+
+
 OCCASIONS = [
     {
         "slug": "rosh-hashana",
@@ -80,7 +105,7 @@ OCCASIONS = [
         "name": "Yom Kipur",
         "status": STATUS_LOCKED,
         "display_order": 2,
-        "aliyot": [],
+        "aliyot": YOM_KIPUR_ALIYOT,
     },
 ]
 
@@ -107,7 +132,10 @@ def seed():
             db.session.flush()
             created_occasions += 1
 
-        for order, moment, name, subtitle, image_key in spec["aliyot"]:
+        for order, moment, name, subtitle, image_key, *rest in spec["aliyot"]:
+            # An item may carry its own minimum; otherwise it comes from its
+            # image group, which is how Rosh Hashana was seeded.
+            min_bid = rest[0] if rest else MIN_BID_BY_IMAGE_KEY[image_key]
             active = (spec["slug"], name) not in WITHDRAWN
             exists = db.session.scalar(
                 select(Aliyah).where(
@@ -125,7 +153,7 @@ def seed():
                         subtitle=subtitle,
                         image_key=image_key,
                         is_active=active,
-                        min_bid=MIN_BID_BY_IMAGE_KEY[image_key],
+                        min_bid=min_bid,
                     )
                 )
                 created_aliyot += 1
@@ -148,7 +176,7 @@ def seed():
             if exists.min_bid is None:
                 # Only fill an empty minimum. An admin who changed a value must
                 # not have it reset by the next deploy.
-                exists.min_bid = MIN_BID_BY_IMAGE_KEY[image_key]
+                exists.min_bid = min_bid
                 filled_minimums += 1
 
     db.session.commit()

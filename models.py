@@ -39,6 +39,8 @@ STATUS_CLOSED = "closed"      # auction over, final amounts shown
 # Moment groups used to break the item list into visual sections.
 MOMENT_ARVIT = "Arvit"
 MOMENT_SHACHARIT = "Shacharit"
+MOMENT_MINCHA = "Mincha"
+MOMENT_NEILA = "Neila"
 
 # Storage is naive UTC everywhere and stays that way. This is only for the
 # dates a visitor reads: the kehila is in Israel, so a time on the page is an

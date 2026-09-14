@@ -6,60 +6,33 @@
 
   /* ---------- Countdown ---------- */
 
+  // The page shows whole days only and does not carry the closing hour at all.
+  // The server says how many seconds until the day count next changes, which
+  // is midnight in Israel, and the page reloads then so the figure moves. It
+  // does not reload at the closing hour, since it does not know it: a bid sent
+  // after the close is refused by the server, and the next load shows the
+  // closed state.
   function startCountdown() {
     var box = document.querySelector(".countdown");
     if (!box) {
       return;
     }
 
-    var closing = Date.parse(box.dataset.closing);
-    var serverNow = Date.parse(box.dataset.now);
-    if (isNaN(closing) || isNaN(serverNow)) {
+    var seconds = parseInt(box.dataset.refreshIn, 10);
+    if (isNaN(seconds) || seconds <= 0) {
       return;
     }
 
-    // The visitor's clock may be wrong by minutes or by days. Measure the gap
-    // to the server once, then count using that corrected time. The server
-    // still has the final word on whether a late bid is accepted.
-    var offset = serverNow - Date.now();
-
-    var fields = {};
-    box.querySelectorAll("[data-unit]").forEach(function (el) {
-      fields[el.dataset.unit] = el;
-    });
-
-    function pad(value) {
-      return value < 10 ? "0" + value : String(value);
-    }
-
-    function tick() {
-      var remaining = closing - (Date.now() + offset);
-
-      if (remaining <= 0) {
-        Object.keys(fields).forEach(function (key) {
-          fields[key].textContent = "00";
-        });
-        clearInterval(timer);
-        // Let the server rebuild the page in its closed state.
-        window.setTimeout(function () {
-          window.location.reload();
-        }, 1500);
+    function refresh() {
+      // Never throw away a bid somebody is in the middle of typing.
+      if (document.querySelector(".modal:not([hidden])")) {
+        window.setTimeout(refresh, 60000);
         return;
       }
-
-      var seconds = Math.floor(remaining / 1000);
-      var days = Math.floor(seconds / 86400);
-      var hours = Math.floor((seconds % 86400) / 3600);
-      var minutes = Math.floor((seconds % 3600) / 60);
-
-      fields.days.textContent = pad(days);
-      fields.hours.textContent = pad(hours);
-      fields.minutes.textContent = pad(minutes);
-      fields.seconds.textContent = pad(seconds % 60);
+      window.location.reload();
     }
 
-    tick();
-    var timer = setInterval(tick, 1000);
+    window.setTimeout(refresh, seconds * 1000);
   }
 
   /* ---------- Bid modal ---------- */

@@ -39,17 +39,23 @@
         {% endif %}
       {% endif %}
 
-      {% if bidding_open and occasion and occasion.closing_datetime %}
-        <div class="countdown"
-             data-closing="{{ occasion.closing_datetime.isoformat() }}Z"
-             data-now="{{ server_now.isoformat() }}Z"
-             aria-live="off">
-          <div class="cd-unit"><span class="cd-value" data-unit="days">--</span><span class="cd-label">dias</span></div>
-          <div class="cd-unit"><span class="cd-value" data-unit="hours">--</span><span class="cd-label">horas</span></div>
-          <div class="cd-unit"><span class="cd-value" data-unit="minutes">--</span><span class="cd-label">min</span></div>
-          <div class="cd-unit"><span class="cd-value" data-unit="seconds">--</span><span class="cd-label">seg</span></div>
+      {# Whole days only. The closing hour is never on the page, not even in a
+         data attribute, so nobody can wait for the last minute. #}
+      {% if countdown %}
+        {% set days_left, refresh_in = countdown %}
+        <div class="countdown" data-refresh-in="{{ refresh_in }}">
+          {% if days_left == 0 %}
+            <div class="cd-unit cd-today"><span class="cd-value">Encerra hoje</span></div>
+          {% else %}
+            <div class="cd-unit">
+              <span class="cd-value">{{ days_left }}</span>
+              <span class="cd-label">{{ "dia" if days_left == 1 else "dias" }}</span>
+            </div>
+          {% endif %}
         </div>
-        <p class="countdown-note">Para o leilão fechar</p>
+        {% if days_left > 0 %}
+          <p class="countdown-note">Para o leilão fechar</p>
+        {% endif %}
       {% endif %}
     </div>
   </section>
@@ -216,7 +222,7 @@
           <li>
             O leilão de {{ occasion.name }}
             {% if server_now < occasion.closing_datetime %}encerra{% else %}encerrou{% endif %}
-            {{ occasion.closing_datetime | israel_long }} (horário de Israel).
+            {{ occasion.closing_datetime | israel_long }}.
           </li>
         {% endif %}
         <li>O pagamento será combinado com a Kehila após o encerramento.</li>

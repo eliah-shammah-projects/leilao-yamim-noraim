@@ -1,7 +1,7 @@
 """Flask application for the aliyot auction."""
 
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta, timezone
 from functools import wraps
 from itertools import groupby
 
@@ -22,6 +22,7 @@ import mailer
 from bidding import BidRejected, place_bid
 from config import DEV_SECRET_KEY, Config
 from models import (
+    DISPLAY_TZ,
     STATUS_CLOSED,
     STATUS_LOCKED,
     STATUS_OPEN,
@@ -53,6 +54,8 @@ IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp")
 MOMENT_CAPTIONS = {
     "Arvit": "Noite",
     "Shacharit": "Manhã",
+    "Mincha": "Tarde",
+    "Neila": "Fim do dia",
 }
 
 # Inside one moment the items are split into tiers so that the opening, the
@@ -94,13 +97,38 @@ WEEKDAYS_PT = [
 
 
 def format_israel_long(moment):
-    """A date written out for a reader: "na quinta-feira, 10/09/2026, as 22:00"."""
+    """A date written out for a reader: "na quinta-feira, 17/09/2026".
+
+    No hour, on purpose. See closing_countdown.
+    """
     if moment is None:
         return ""
     local = to_display(moment)
-    return "{}, {:%d/%m/%Y}, às {:%H:%M}".format(
-        WEEKDAYS_PT[local.weekday()], local, local
+    return "{}, {:%d/%m/%Y}".format(WEEKDAYS_PT[local.weekday()], local)
+
+
+def closing_countdown(closing, now):
+    """Return (days left, seconds until that number next changes).
+
+    The public page never shows the closing hour, asked for on 2026-09-14 so
+    that nobody sits waiting for the last minute. The auction still closes at
+    the exact datetime in the panel; only the display is coarse.
+
+    Days are counted as calendar days in Israel, so the figure turns over at
+    midnight there. A plain 24-hour count would turn over at the closing hour
+    itself and give the hour away all the same. 0 means the closing is today.
+    """
+    local_now = to_display(now)
+    days = (to_display(closing).date() - local_now.date()).days
+    next_midnight = datetime.combine(
+        local_now.date() + timedelta(days=1), time(0), tzinfo=DISPLAY_TZ
     )
+    # Compared in UTC: two datetimes sharing a tzinfo subtract as wall clocks
+    # and would be an hour out across a daylight saving change.
+    refresh_in = (
+        next_midnight.astimezone(timezone.utc) - local_now.astimezone(timezone.utc)
+    ).total_seconds()
+    return max(days, 0), int(refresh_in) + 5
 
 
 def format_nis(amount):
@@ -270,6 +298,8 @@ def register_routes(app):
             logo_image=find_image("logo_blue") or find_image("logo"),
             image_url_for=find_image,
             server_now=now,
+            countdown=closing_countdown(occasion.closing_datetime, now)
+            if bidding_open and occasion.closing_datetime else None,
             moment_captions=MOMENT_CAPTIONS,
             occasion_note=None if occasion is None
             else OCCASION_NOTES.get(occasion.slug),
