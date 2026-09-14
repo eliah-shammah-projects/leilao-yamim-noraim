@@ -788,21 +788,31 @@ body {
   font-weight: 600;
 }
 
-/* The beat lives on the bid button now, not on the amount. Gentler than the
-   one the amount used to carry: the button spans the card, and the card clips
-   at its edge, so scale and ring together stay inside the 16px of padding. */
-@keyframes bid-pulse {
+/* The bid button carries the movement: a band of light sweeps across it while
+   the button grows and settles, then a rest. The button spans the card and the
+   card clips at its edge, so the growth is a custom property, --beat-scale, set
+   per context: a wide button has to grow by a smaller fraction to stay inside
+   the padding. Both animations share one duration so they stay in step. */
+@keyframes bid-grow {
   0% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(236, 205, 130, 0.55);
   }
-  55% {
-    transform: scale(1.04);
-    box-shadow: 0 0 0 9px rgba(236, 205, 130, 0);
+  22% {
+    transform: scale(var(--beat-scale));
   }
+  45%,
   100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(236, 205, 130, 0);
+  }
+}
+
+@keyframes bid-shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  45%,
+  100% {
+    transform: translateX(100%);
   }
 }
 
@@ -825,10 +835,28 @@ body {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   cursor: pointer;
-  animation: bid-pulse 1.7s var(--ease) infinite;
+  overflow: hidden;
+  --beat-scale: 1.08;
+  animation: bid-grow 2.6s var(--ease) infinite;
   transition: background-color 0.45s var(--ease),
               color 0.45s var(--ease),
               border-color 0.45s var(--ease);
+}
+
+/* The band of light. Clipped to the pill by the button's overflow, and parked
+   outside it at the end of each sweep, which is also where reduced motion
+   leaves it. */
+.btn-bid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg,
+              transparent 30%,
+              rgba(255, 244, 214, 0.55) 50%,
+              transparent 70%);
+  transform: translateX(-100%);
+  animation: bid-shine 2.6s var(--ease) infinite;
+  pointer-events: none;
 }
 
 .btn-bid:hover {
@@ -934,8 +962,18 @@ body {
 }
 
 .card-big .btn-bid {
+  --beat-scale: 1.08;
   padding: 12px 16px;
   font-size: 12px;
+}
+
+/* A tablet held upright still gets the phone list row, where the button runs
+   past 500px, and 8 percent of that would be cut by the card edge. The
+   selector outranks the phone rule below without touching the enlarged card. */
+@media (min-width: 481px) and (max-width: 700px) {
+  .card:not(.card-big) .btn-bid {
+    --beat-scale: 1.04;
+  }
 }
 
 @keyframes modal-in {
@@ -1207,6 +1245,13 @@ code {
   .card-media {
     flex: 0 0 98px;
     aspect-ratio: auto;
+  }
+
+  /* On a phone the list row button is up to about 310px wide, which 8
+     percent still fits. Tablets are narrowed further up, next to the
+     enlarged card rule. */
+  .btn-bid {
+    --beat-scale: 1.08;
   }
 
   /* The enlarged card is not a list row. It keeps the full photograph on top,

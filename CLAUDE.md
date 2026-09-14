@@ -583,9 +583,18 @@ Wiping is done by hand if it is ever needed again.
   at his ask the same day, and then from the faint --line-strong (gold at 34 percent) to
   solid --gold, also his ask: "mais dourada forte". It beats on every card where it shows,
   with or without a bid, and in the enlarged card too. Where there is no button, as on a
-  closed occasion, nothing moves. The keyframe is gentler than the old one, scale 1.04 and
-  a 9px ring instead of 1.07 and 13px, because the button spans the card and the card
-  clips at its edge. Reduced motion is still honoured by the global rule.
+  closed occasion, nothing moves. Reduced motion is still honoured by the global rule.
+  THE MOVEMENT IS A LIGHT SWEEP, approved and deployed. The first beat was "mto fraco".
+  A heartbeat came next (two quick beats, a ring and a glow) and Eliahu found it "meio
+  brega", so it was replaced the same day by his option three: a band of light crosses the
+  button (::after, clipped by the button's overflow) while the button grows by 8 percent,
+  his number, and settles, over 2.6s with a rest. A beat that fills the button with gold
+  was the other option offered and was not chosen.
+  THE GROWTH IS --beat-scale, SET PER CONTEXT, because the button spans the card and the
+  card clips at its edge: a percentage that fits a 200px button cuts a 500px one. 1.08 on
+  the desktop grid, in the enlarged card and in the phone list row up to 480px, 1.04 in the
+  list row from 481 to 700px, where a tablet stretches the button past 500px. Worked out as
+  growth per side kept inside the 16px of padding (22px in the enlarged card).
 
 - 2026-09-14 THE PUBLIC PAGE NEVER SHOWS THE CLOSING HOUR. Asked for by the kehila through
   Eliahu: "nao mostrar as horas q vai terminar p ngm ficar esperando e sim apenas mostrar
