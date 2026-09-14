@@ -266,6 +266,36 @@ def register_routes(app):
                 groups.append((moment, len(items), tiers))
             highest = highest_bids_for_occasion(occasion.id)
 
+        # Over, as opposed to not open yet: closed by hand in the panel or past
+        # its closing datetime. It gets a large block instead of the dry status
+        # line, and a way on to the next occasion unless that one is locked,
+        # where a button would lead to a dead end.
+        auction_over = occasion is not None and not bidding_open and (
+            occasion.status == STATUS_CLOSED
+            or (
+                occasion.closing_datetime is not None
+                and now >= occasion.closing_datetime
+            )
+        )
+        closed_at = None
+        next_occasion = None
+        if auction_over:
+            if (
+                occasion.closing_datetime is not None
+                and now >= occasion.closing_datetime
+            ):
+                closed_at = "{:%d/%m/%Y às %H:%M}".format(
+                    to_display(occasion.closing_datetime)
+                )
+            next_occasion = next(
+                (
+                    o for o in occasions
+                    if o.display_order > occasion.display_order
+                    and o.status != STATUS_LOCKED
+                ),
+                None,
+            )
+
         # A rejected bid comes back with its values so nobody has to retype a
         # name, an email and a phone number on a phone.
         prefill = session.get("bidder", {})
@@ -290,6 +320,9 @@ def register_routes(app):
             bidding_open=bidding_open,
             closed_reason=None if occasion is None or bidding_open
             else occasion.closed_reason(now),
+            auction_over=auction_over,
+            closed_at=closed_at,
+            next_occasion=next_occasion,
             is_locked=occasion is not None and occasion.status == STATUS_LOCKED,
             is_closed=occasion is not None and occasion.status == STATUS_CLOSED,
             hero_image=find_image("hero"),

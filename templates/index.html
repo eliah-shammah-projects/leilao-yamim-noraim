@@ -114,7 +114,19 @@
           <p class="panel-locked-text">Nenhuma aliyah cadastrada nesta ocasião.</p>
         </div>
       {% else %}
-        {% if not bidding_open %}
+        {% if auction_over %}
+          <div class="closed-block">
+            <h2 class="closed-title">O leilão de {{ occasion.name }} está encerrado</h2>
+            {% if closed_at %}
+              <p class="closed-text">Os lances foram encerrados em {{ closed_at }}.</p>
+            {% endif %}
+            {% if next_occasion %}
+              <a class="btn-next" href="{{ url_for('index', ocasiao=next_occasion.slug) }}">
+                Ver o leilão de {{ next_occasion.name }}
+              </a>
+            {% endif %}
+          </div>
+        {% elif not bidding_open %}
           <p class="status-line">{{ closed_reason }}</p>
         {% endif %}
 

@@ -526,7 +526,16 @@ Wiping is done by hand if it is ever needed again.
 
 ## Still Open On The Schedule
 
-1. THE CLOSED STATE HAS TO SEND PEOPLE TO YOM KIPUR. Eliahu: "depois de rosh hashana ou seja
+1. DONE 2026-09-14, Eliahu approved the shape below ("pode fazer esses dois") after asking
+   for "o leilao esta encerrado" to be written large. Built as `.closed-block` in place of
+   the status line whenever the occasion is over (status closed, or past its closing
+   datetime): large gold title "O leilao de <ocasiao> esta encerrado", the line "Os lances
+   foram encerrados em <data> as <hora>" when the closing datetime has passed, and a gold
+   filled "Ver o leilao de <proxima>" button. The button is left out while the next
+   occasion is LOCKED, with no line in its place, and when there is no next occasion. The
+   title uses occasion.name, so it reads "Rosh Hashana" exactly as the tab does.
+   The original note, kept for the history:
+   THE CLOSED STATE HAS TO SEND PEOPLE TO YOM KIPUR. Eliahu: "depois de rosh hashana ou seja
    depois q acabar o horario vao ter q estar escrito q acabou o leilao e dizendo p ir na aba
    de yom kipur". Today the closed state is one dry line from closed_reason() above the
    cards, and it invites nobody anywhere. Agreed shape, wording still to be confirmed:

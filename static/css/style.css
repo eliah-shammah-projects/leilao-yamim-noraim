@@ -432,6 +432,54 @@ body {
   margin: 30px 0 0;
 }
 
+/* ---------- Auction over ---------- */
+
+/* Large enough that nobody scrolls past it looking for a bid button, and it
+   sends people on to the next occasion instead of leaving them at a dead end. */
+.closed-block {
+  max-width: 640px;
+  margin: 44px auto 0;
+  text-align: center;
+}
+
+.closed-title {
+  margin: 0;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 300;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 70%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.closed-text {
+  margin: 14px 0 0;
+  font-size: 15px;
+  color: var(--dim);
+}
+
+.btn-next {
+  display: inline-block;
+  margin-top: 26px;
+  padding: 15px 30px;
+  border-radius: 999px;
+  background: linear-gradient(160deg, var(--gold-bright), var(--gold));
+  color: #1c1409;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: filter 0.45s var(--ease), transform 0.45s var(--ease);
+}
+
+.btn-next:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
 /* ---------- Locked and empty panel ---------- */
 
 .panel-locked {
